@@ -4,6 +4,7 @@ import { LogosCarousel } from "../../@/components/ui/logos-carousel";
 import { Experience01 } from "../../@/components/experience-01";
 import { Certificates } from "../../@/components/ui/certificates";
 import { ContactForm } from "../../@/components/ui/forms";
+import { Projects } from "../../@/components/ui/projects";
 import { useLanguage } from "@/i18n/language-context";
 import { cn } from "../lib/utils";
 import { gsap } from "../lib/gsap";
@@ -230,6 +231,8 @@ export function Home() {
         >
           <Experience01 />
         </section>
+
+        <Projects />
 
         <Certificates />
 
