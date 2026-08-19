@@ -24,10 +24,8 @@
 
     /* Configuração de caminhos do shadcn */
     "paths": {
-      "@/*": [
-        "./src/*"
-      ]
+      "@/*": ["./src/*"]
     }
   },
-  "include": ["src", "@"]
+  "include": ["src"]
 }

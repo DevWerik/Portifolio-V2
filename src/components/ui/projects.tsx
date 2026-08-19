@@ -7,31 +7,49 @@ import { useLanguage, type Language } from "@/i18n/language-context";
 
 type ProjectStatus = "completed" | "inProgress";
 
-type LocalizedProject = {
+type LocalizedProjectBase = {
   id: string;
   title: Record<Language, string>;
-  description: Record<Language, string>;
-  technologies: string[];
-  repositoryUrl: string;
+  summary: Record<Language, string>;
+  challenge: Record<Language, string>;
+  solution: Record<Language, string>;
+  outcome: Record<Language, string>;
+  technologies: readonly string[];
+  sourceUrl?: string;
+  demoUrl?: string;
   startDate: string;
   endDate?: string;
-  duration: Record<Language, string>;
   status: ProjectStatus;
-  visual: "pizzaShop" | "financialApi";
-  imageAlt?: Record<Language, string>;
 };
+
+type LocalizedProject = LocalizedProjectBase &
+  (
+    | {
+        visual: "pizzaShop";
+        imageAlt: Record<Language, string>;
+      }
+    | {
+        visual: "financialApi";
+        imageAlt?: never;
+      }
+  );
 
 type ProjectsCopy = {
   eyebrow: string;
   title: string;
   description: string;
   technologies: string;
+  challenge: string;
+  solution: string;
+  outcome: string;
   period: string;
   developmentTime: string;
   since: string;
   status: Record<ProjectStatus, string>;
-  viewOnGithub: string;
-  viewOnGithubAria: (projectName: string) => string;
+  viewSource: string;
+  viewDemo: string;
+  viewSourceAria: (projectName: string) => string;
+  viewDemoAria: (projectName: string) => string;
 };
 
 const PROJECTS_COPY = {
@@ -39,8 +57,11 @@ const PROJECTS_COPY = {
     eyebrow: "Projetos selecionados",
     title: "Projetos",
     description:
-      "Aplicações em que transformei problemas reais em experiências rápidas, acessíveis e bem estruturadas.",
+      "Cases que apresentam o contexto, as decisões técnicas e o resultado de cada projeto, do front-end à arquitetura de back-end.",
     technologies: "Tecnologias utilizadas",
+    challenge: "Desafio",
+    solution: "Solução",
+    outcome: "Resultado",
     period: "Período",
     developmentTime: "Tempo de desenvolvimento",
     since: "Desde",
@@ -48,16 +69,22 @@ const PROJECTS_COPY = {
       completed: "Concluído",
       inProgress: "Em desenvolvimento",
     },
-    viewOnGithub: "Ver no GitHub",
-    viewOnGithubAria: (projectName: string) =>
-      `Ver o projeto ${projectName} no GitHub (abre em nova aba)`,
+    viewSource: "Ver código",
+    viewDemo: "Ver demonstração",
+    viewSourceAria: (projectName: string) =>
+      `Ver o código-fonte de ${projectName} (abre em nova aba)`,
+    viewDemoAria: (projectName: string) =>
+      `Ver a demonstração de ${projectName} (abre em nova aba)`,
   },
   en: {
     eyebrow: "Selected work",
     title: "Projects",
     description:
-      "Applications where I turned real problems into fast, accessible, and well-structured experiences.",
+      "Case studies covering the context, technical decisions, and outcome of each project, from front-end implementation to back-end architecture.",
     technologies: "Technologies used",
+    challenge: "Challenge",
+    solution: "Solution",
+    outcome: "Outcome",
     period: "Period",
     developmentTime: "Development time",
     since: "Since",
@@ -65,41 +92,51 @@ const PROJECTS_COPY = {
       completed: "Completed",
       inProgress: "In development",
     },
-    viewOnGithub: "View on GitHub",
-    viewOnGithubAria: (projectName: string) =>
-      `View ${projectName} on GitHub (opens in a new tab)`,
+    viewSource: "View source",
+    viewDemo: "View demo",
+    viewSourceAria: (projectName: string) =>
+      `View the source code for ${projectName} (opens in a new tab)`,
+    viewDemoAria: (projectName: string) =>
+      `View the ${projectName} demo (opens in a new tab)`,
   },
 } satisfies Record<Language, ProjectsCopy>;
 
-const PROJECTS = [
+const PROJECTS: LocalizedProject[] = [
   {
     id: "pizza-shop",
     title: {
       pt: "Pizza Shop",
       en: "Pizza Shop",
     },
-    description: {
-      pt: "Dashboard para gestão de restaurantes, com métricas de receita, acompanhamento de pedidos, gráficos e tabelas. A interface consome uma API e inclui cache, atualizações otimistas, estados de carregamento e testes automatizados.",
-      en: "A restaurant management dashboard with revenue metrics, order tracking, charts, and tables. The interface consumes an API and includes caching, optimistic updates, loading states, and automated tests.",
+    summary: {
+      pt: "Dashboard web para acompanhar indicadores e o fluxo de pedidos de um restaurante.",
+      en: "A web dashboard for monitoring restaurant indicators and order flow.",
+    },
+    challenge: {
+      pt: "Reunir indicadores de vendas e pedidos em uma interface clara, inclusive durante carregamentos e atualizações de dados.",
+      en: "Bring sales indicators and orders into a clear interface, including while data is loading or being updated.",
+    },
+    solution: {
+      pt: "Desenvolvi páginas responsivas de dashboard e pedidos, com rotas organizadas, formulários validados, tabelas filtráveis e gráficos construídos com Recharts.",
+      en: "I developed responsive dashboard and order pages with organized routes, validated forms, filterable tables, and charts built with Recharts.",
+    },
+    outcome: {
+      pt: "O resultado centraliza métricas, visualizações de receita e gestão de pedidos em uma experiência consistente para o restaurante.",
+      en: "The result brings metrics, revenue visualizations, and order management together in a consistent restaurant experience.",
     },
     technologies: [
       "React",
       "TypeScript",
       "Tailwind CSS",
-      "shadcn/ui",
-      "React Query",
+      "Radix UI",
       "React Router",
+      "Recharts",
       "React Hook Form",
       "Zod",
-      "Vitest",
     ],
-    repositoryUrl: "https://github.com/DevWerik/pizzashop-web",
+    sourceUrl: "https://github.com/DevWerik/pizzashop-web",
     startDate: "2026-01",
     endDate: "2026-05",
-    duration: {
-      pt: "5 meses",
-      en: "5 months",
-    },
     status: "completed",
     visual: "pizzaShop",
     imageAlt: {
@@ -113,9 +150,21 @@ const PROJECTS = [
       pt: "API de controle financeiro",
       en: "Financial Management API",
     },
-    description: {
-      pt: "Back-end para uma plataforma de gestão financeira, criado para organizar transações, orçamentos e despesas. A API prioriza separação de responsabilidades, validação de dados, testes e uma arquitetura preparada para crescer.",
-      en: "A back-end for a financial management platform built to organize transactions, budgets, and expenses. The API prioritizes separation of concerns, data validation, testing, and an architecture designed to scale.",
+    summary: {
+      pt: "API para organizar as regras e os dados de uma plataforma de controle financeiro.",
+      en: "An API that organizes the rules and data for a financial management platform.",
+    },
+    challenge: {
+      pt: "Estruturar transações, orçamentos e despesas sem acoplar as regras de negócio à infraestrutura da aplicação.",
+      en: "Structure transactions, budgets, and expenses without coupling business rules to the application's infrastructure.",
+    },
+    solution: {
+      pt: "Organizei o back-end em responsabilidades bem definidas, com Fastify, persistência em PostgreSQL, validação por schemas Zod e testes com Vitest.",
+      en: "I organized the back end into clear responsibilities using Fastify, PostgreSQL persistence, Zod schema validation, and Vitest tests.",
+    },
+    outcome: {
+      pt: "A base resultante favorece evolução incremental, contratos de dados previsíveis e componentes que podem ser testados de forma isolada.",
+      en: "The resulting foundation supports incremental evolution, predictable data contracts, and components that can be tested in isolation.",
     },
     technologies: [
       "Node.js",
@@ -126,16 +175,11 @@ const PROJECTS = [
       "Cookies",
       "Vitest",
     ],
-    repositoryUrl: "https://github.com/DevWerik/Api-Node",
     startDate: "2026-05",
-    duration: {
-      pt: "Em andamento",
-      en: "Ongoing",
-    },
     status: "inProgress",
     visual: "financialApi",
   },
-] satisfies LocalizedProject[];
+];
 
 function formatProjectDate(value: string, language: Language) {
   const [year, month] = value.split("-").map(Number);
@@ -148,6 +192,39 @@ function formatProjectDate(value: string, language: Language) {
   }).format(new Date(Date.UTC(year, month - 1, 1)));
 }
 
+function formatProjectDuration(
+  startDate: string,
+  endDate: string | undefined,
+  language: Language,
+) {
+  const [startYear, startMonth] = startDate.split("-").map(Number);
+  const now = new Date();
+  const [endYear, endMonth] = endDate
+    ? endDate.split("-").map(Number)
+    : [now.getFullYear(), now.getMonth() + 1];
+  const totalMonths = Math.max(
+    1,
+    (endYear - startYear) * 12 + (endMonth - startMonth) + 1,
+  );
+  const years = Math.floor(totalMonths / 12);
+  const months = totalMonths % 12;
+  const labels =
+    language === "pt"
+      ? { year: ["ano", "anos"], month: ["mês", "meses"] }
+      : { year: ["year", "years"], month: ["month", "months"] };
+  const parts: string[] = [];
+
+  if (years > 0) {
+    parts.push(`${years} ${labels.year[years === 1 ? 0 : 1]}`);
+  }
+
+  if (months > 0) {
+    parts.push(`${months} ${labels.month[months === 1 ? 0 : 1]}`);
+  }
+
+  return parts.join(" ");
+}
+
 function ProjectVisual({
   project,
   language,
@@ -155,7 +232,7 @@ function ProjectVisual({
   project: LocalizedProject;
   language: Language;
 }) {
-  if (project.visual === "pizzaShop" && project.imageAlt) {
+  if (project.visual === "pizzaShop") {
     return (
       <div className="aspect-1911/888 overflow-hidden border-b border-white/10 bg-zinc-950">
         <img
@@ -170,6 +247,19 @@ function ProjectVisual({
       </div>
     );
   }
+
+  const architectureLayers =
+    language === "pt"
+      ? [
+          { technology: "Fastify", role: "Camada HTTP" },
+          { technology: "Zod", role: "Validação" },
+          { technology: "PostgreSQL", role: "Persistência" },
+        ]
+      : [
+          { technology: "Fastify", role: "HTTP layer" },
+          { technology: "Zod", role: "Validation" },
+          { technology: "PostgreSQL", role: "Persistence" },
+        ];
 
   return (
     <div
@@ -189,18 +279,19 @@ function ProjectVisual({
         </div>
 
         <div className="space-y-3 p-4 font-mono text-[10px] sm:p-5 sm:text-xs">
-          <div className="flex items-center gap-3 border-b border-white/5 pb-3">
-            <span className="w-11 text-emerald-400">POST</span>
-            <span className="text-zinc-300">/transactions</span>
-          </div>
-          <div className="flex items-center gap-3 border-b border-white/5 pb-3">
-            <span className="w-11 text-sky-400">GET</span>
-            <span className="text-zinc-300">/budgets</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="w-11 text-amber-300">PATCH</span>
-            <span className="text-zinc-300">/expenses/:id</span>
-          </div>
+          {architectureLayers.map((layer, index) => (
+            <div
+              key={layer.technology}
+              className={`flex items-center justify-between gap-3 pb-3 ${
+                index < architectureLayers.length - 1
+                  ? "border-b border-white/5"
+                  : "pb-0"
+              }`}
+            >
+              <span className="text-zinc-200">{layer.technology}</span>
+              <span className="text-zinc-500">{layer.role}</span>
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -264,7 +355,8 @@ export function Projects() {
       ref={sectionRef}
       id="projetos"
       aria-labelledby="projects-title"
-      className="scroll-mt-24 py-20 lg:py-32"
+      tabIndex={-1}
+      className="scroll-mt-24 py-20 outline-none lg:py-32"
     >
       <header data-gsap-project-heading className="max-w-3xl">
         <div className="flex items-center gap-4 text-xs uppercase tracking-[0.28em] text-zinc-400">
@@ -319,9 +411,31 @@ export function Projects() {
                   {project.title[language]}
                 </h3>
 
-                <p className="mt-4 leading-7 text-zinc-400">
-                  {project.description[language]}
+                <p className="mt-4 text-lg leading-8 text-zinc-300">
+                  {project.summary[language]}
                 </p>
+
+                <dl className="mt-7 space-y-5 border-y border-white/10 py-6">
+                  {(
+                    [
+                      [copy.challenge, project.challenge[language]],
+                      [copy.solution, project.solution[language]],
+                      [copy.outcome, project.outcome[language]],
+                    ] as const
+                  ).map(([label, value], caseIndex) => (
+                    <div
+                      key={label}
+                      className="grid gap-2 sm:grid-cols-[6.5rem_1fr] sm:gap-4"
+                    >
+                      <dt className="font-mono text-xs uppercase tracking-[0.18em] text-zinc-500">
+                        {String(caseIndex + 1).padStart(2, "0")} · {label}
+                      </dt>
+                      <dd className="text-sm leading-6 text-zinc-400">
+                        {value}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
 
                 <div className="mt-7">
                   <h4 className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-zinc-400">
@@ -369,22 +483,46 @@ export function Projects() {
                       {copy.developmentTime}
                     </dt>
                     <dd className="mt-2 font-mono text-sm text-zinc-200">
-                      {project.duration[language]}
+                      {formatProjectDuration(
+                        project.startDate,
+                        project.endDate,
+                        language,
+                      )}
                     </dd>
                   </div>
                 </dl>
 
-                <a
-                  href={project.repositoryUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={copy.viewOnGithubAria(project.title[language])}
-                  className="mt-8 inline-flex w-fit items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-medium text-zinc-200 transition duration-300 hover:-translate-y-0.5 hover:border-white hover:bg-white hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-4 focus-visible:ring-offset-black"
-                >
-                  <FaGithub className="size-4" aria-hidden="true" />
-                  {copy.viewOnGithub}
-                  <ExternalLink className="size-3.5" aria-hidden="true" />
-                </a>
+                {(project.sourceUrl || project.demoUrl) && (
+                  <div className="mt-auto flex flex-wrap gap-3 pt-8">
+                    {project.sourceUrl && (
+                      <a
+                        href={project.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={copy.viewSourceAria(
+                          project.title[language],
+                        )}
+                        className="inline-flex w-fit items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-medium text-zinc-200 transition duration-300 hover:-translate-y-0.5 hover:border-white hover:bg-white hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-4 focus-visible:ring-offset-black"
+                      >
+                        <FaGithub className="size-4" aria-hidden="true" />
+                        {copy.viewSource}
+                      </a>
+                    )}
+
+                    {project.demoUrl && (
+                      <a
+                        href={project.demoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={copy.viewDemoAria(project.title[language])}
+                        className="inline-flex w-fit items-center gap-2 rounded-full border border-white/15 bg-white px-4 py-2.5 text-sm font-medium text-black transition duration-300 hover:-translate-y-0.5 hover:bg-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-4 focus-visible:ring-offset-black"
+                      >
+                        {copy.viewDemo}
+                        <ExternalLink className="size-4" aria-hidden="true" />
+                      </a>
+                    )}
+                  </div>
+                )}
               </div>
             </article>
           </li>

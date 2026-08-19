@@ -1,22 +1,18 @@
-"use client";
+import type { ComponentProps, ReactElement } from "react";
+import {
+  BriefcaseBusinessIcon,
+  ChevronsUpDownIcon,
+  InfinityIcon,
+} from "lucide-react";
 
-import { useCallback, useRef, type ComponentProps } from "react";
-import React from "react";
-import { differenceInMonths, parse } from "date-fns";
-import ReactMarkdown from "react-markdown";
-import { cn } from "../../@/lib/utils";
+import { cn } from "@/lib/utils";
+import { useLanguage, type Language } from "@/i18n/language-context";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "./ui/collapsible";
 import { Separator } from "./ui/separator";
-import {
-  ChevronsUpDownIcon,
-  type ChevronsUpDownIconHandle,
-} from "./chevrons-up-down-icon";
-import { BriefcaseBusinessIcon, InfinityIcon } from "lucide-react";
-import { useLanguage, type Language } from "@/i18n/language-context";
 
 const WORK_EXPERIENCE_COPY = {
   pt: {
@@ -25,6 +21,7 @@ const WORK_EXPERIENCE_COPY = {
     employmentPeriod: "Período de trabalho",
     present: "Atualmente",
     duration: "Duração",
+    openCompany: (company: string) => `Acessar ${company} (abre em nova aba)`,
     year: ["ano", "anos"],
     month: ["mês", "meses"],
   },
@@ -34,6 +31,7 @@ const WORK_EXPERIENCE_COPY = {
     employmentPeriod: "Employment period",
     present: "Present",
     duration: "Duration",
+    openCompany: (company: string) => `Open ${company} (opens in a new tab)`,
     year: ["year", "years"],
     month: ["month", "months"],
   },
@@ -45,6 +43,7 @@ const WORK_EXPERIENCE_COPY = {
     employmentPeriod: string;
     present: string;
     duration: string;
+    openCompany: (company: string) => string;
     year: readonly [string, string];
     month: readonly [string, string];
   }
@@ -68,9 +67,9 @@ export type ExperiencePositionItemType = {
   /** The type of employment (e.g., "Full-time", "Part-time", "Contract") */
   employmentType?: string;
   /** A brief description of the position or responsibilities */
-  description?: string;
+  description?: readonly string[];
   /** An icon representing the position */
-  icon?: React.ReactElement;
+  icon?: ReactElement;
   /** A list of skills associated with the position */
   skills?: string[];
   /** Indicates if the position details are expanded in the UI */
@@ -129,7 +128,7 @@ export function ExperienceItem({ experience }: ExperienceItemProps) {
           {experience.companyLogo ? (
             <img
               src={experience.companyLogo}
-              alt={experience.companyName}
+              alt=""
               className="size-6 rounded-full"
               aria-hidden
             />
@@ -145,6 +144,7 @@ export function ExperienceItem({ experience }: ExperienceItemProps) {
               href={experience.companyWebsite}
               target="_blank"
               rel="noopener noreferrer"
+              aria-label={copy.openCompany(experience.companyName)}
             >
               {experience.companyName}
             </a>
@@ -158,7 +158,7 @@ export function ExperienceItem({ experience }: ExperienceItemProps) {
             className="relative flex items-center justify-center"
             aria-label={copy.currentEmployer}
           >
-            <span className="absolute inline-flex size-3 animate-ping rounded-full bg-sky-500 opacity-50" />
+            <span className="absolute inline-flex size-3 animate-ping rounded-full bg-sky-500 opacity-50 motion-reduce:animate-none" />
             <span className="relative inline-flex size-2 rounded-full bg-sky-500" />
           </span>
         )}
@@ -188,18 +188,6 @@ export function ExperiencePositionItem({
 }: ExperiencePositionItemProps) {
   const { language } = useLanguage();
   const copy = WORK_EXPERIENCE_COPY[language];
-  const chevronsUpDownIconRef = useRef<ChevronsUpDownIconHandle>(null);
-
-  const handleOpenChange = useCallback((open: boolean) => {
-    const controls = chevronsUpDownIconRef.current;
-    if (!controls) return;
-
-    if (open) {
-      controls.startAnimation();
-    } else {
-      controls.stopAnimation();
-    }
-  }, []);
 
   const { start, end } = position.employmentPeriod;
   const isOngoing = !end;
@@ -208,7 +196,6 @@ export function ExperiencePositionItem({
   return (
     <Collapsible
       defaultOpen={position.isExpanded}
-      onOpenChange={handleOpenChange}
       disabled={!position.description}
       render={<div className="relative" />}
     >
@@ -242,7 +229,7 @@ export function ExperiencePositionItem({
           </h4>
 
           <div className="shrink-0 text-muted-foreground group-data-disabled/experience-position:hidden [&_svg]:h-lh [&_svg]:w-4">
-            <ChevronsUpDownIcon ref={chevronsUpDownIconRef} duration={0.15} />
+            <ChevronsUpDownIcon aria-hidden="true" />
           </div>
         </div>
 
@@ -293,9 +280,16 @@ export function ExperiencePositionItem({
       </CollapsibleTrigger>
       <CollapsibleContent className="overflow-hidden">
         {position.description && (
-          <Prose className="pt-2 pl-9">
-            <ReactMarkdown>{position.description}</ReactMarkdown>
-          </Prose>
+          <ul className="space-y-2 pt-3 pl-14 text-sm leading-6 text-muted-foreground">
+            {position.description.map((item) => (
+              <li
+                key={item}
+                className="relative before:absolute before:-left-4 before:top-[0.65rem] before:size-1 before:rounded-full before:bg-current"
+              >
+                {item}
+              </li>
+            ))}
+          </ul>
         )}
       </CollapsibleContent>
       {Array.isArray(position.skills) && position.skills.length > 0 && (
@@ -308,18 +302,6 @@ export function ExperiencePositionItem({
         </ul>
       )}
     </Collapsible>
-  );
-}
-
-function Prose({ className, ...props }: ComponentProps<"div">) {
-  return (
-    <div
-      className={cn(
-        "prose max-w-none prose-ncdai prose-zinc dark:prose-invert",
-        className,
-      )}
-      {...props}
-    />
   );
 }
 
@@ -341,7 +323,7 @@ function formatDuration(
   language: Language,
 ): string {
   const startHasMonth = start.includes(".");
-  const endHasMonth = end ? end.includes(".") : true;
+  const endHasMonth = end?.includes(".") ?? true;
 
   // Both year-only: granularity is years, no month arithmetic needed.
   if (!startHasMonth && end && !endHasMonth) {
@@ -352,11 +334,17 @@ function formatDuration(
     return formatDurationUnit(years, WORK_EXPERIENCE_COPY[language].year);
   }
 
-  const startDate = parsePeriodDate(start, "first");
-  const endDate = end ? parsePeriodDate(end, "last") : new Date();
+  const startDate = parsePeriod(start, "first");
+  const now = new Date();
+  const endDate = end
+    ? parsePeriod(end, "last")
+    : { month: now.getMonth() + 1, year: now.getFullYear() };
 
   // +1 to count both the start and end months inclusively.
-  const totalMonths = differenceInMonths(endDate, startDate) + 1;
+  const totalMonths =
+    (endDate.year - startDate.year) * 12 +
+    (endDate.month - startDate.month) +
+    1;
   if (totalMonths <= 0) {
     return "";
   }
@@ -386,13 +374,17 @@ function formatDurationUnit(
   return `${value} ${value === 1 ? labels[0] : labels[1]}`;
 }
 
-function parsePeriodDate(str: string, fallbackMonth: "first" | "last"): Date {
-  if (str.includes(".")) {
-    return parse(str, "MM.yyyy", new Date());
+function parsePeriod(
+  value: string,
+  fallbackMonth: "first" | "last",
+): { month: number; year: number } {
+  if (!value.includes(".")) {
+    return {
+      month: fallbackMonth === "last" ? 12 : 1,
+      year: Number(value),
+    };
   }
-  return parse(
-    `${fallbackMonth === "last" ? "12" : "01"}.${str}`,
-    "MM.yyyy",
-    new Date(),
-  );
+
+  const [month, year] = value.split(".").map(Number);
+  return { month, year };
 }

@@ -16,6 +16,33 @@ type LanguageContextValue = {
 
 const STORAGE_KEY = "portfolio-language";
 
+const SEO_CONTENT = {
+  pt: {
+    title: "Werik Santos | Desenvolvedor Full Stack",
+    description:
+      "Portfólio de Werik Santos, desenvolvedor Full Stack especializado em React, TypeScript, Node.js e APIs.",
+    socialDescription:
+      "Projetos, experiência e formação de Werik Santos em desenvolvimento Full Stack com React, TypeScript e Node.js.",
+    locale: "pt_BR",
+  },
+  en: {
+    title: "Werik Santos | Full-Stack Developer",
+    description:
+      "Werik Santos’ portfolio: a Full-Stack Developer focused on React, TypeScript, Node.js, and APIs.",
+    socialDescription:
+      "Werik Santos’ projects, experience, and education in Full-Stack development with React, TypeScript, and Node.js.",
+    locale: "en_US",
+  },
+} satisfies Record<
+  Language,
+  {
+    title: string;
+    description: string;
+    socialDescription: string;
+    locale: string;
+  }
+>;
+
 const LanguageContext = createContext<LanguageContextValue | null>(null);
 
 function getInitialLanguage(): Language {
@@ -23,19 +50,49 @@ function getInitialLanguage(): Language {
 
   try {
     const storedLanguage = window.localStorage.getItem(STORAGE_KEY);
-    return storedLanguage === "en" || storedLanguage === "pt"
-      ? storedLanguage
-      : "pt";
+    if (storedLanguage === "en" || storedLanguage === "pt") {
+      return storedLanguage;
+    }
   } catch {
-    return "pt";
+    // Browser language detection still works when storage is unavailable.
   }
+
+  const preferredLanguage = navigator.languages
+    .map((locale) => locale.toLowerCase())
+    .find((locale) => locale.startsWith("pt") || locale.startsWith("en"));
+
+  return preferredLanguage?.startsWith("en") ? "en" : "pt";
 }
 
 export function LanguageProvider({ children }: PropsWithChildren) {
   const [language, setLanguage] = useState<Language>(getInitialLanguage);
 
   useEffect(() => {
+    const seo = SEO_CONTENT[language];
+
     document.documentElement.lang = language === "pt" ? "pt-BR" : "en";
+    document.title = seo.title;
+
+    let descriptionMeta = document.querySelector<HTMLMetaElement>(
+      'meta[name="description"]',
+    );
+
+    if (!descriptionMeta) {
+      descriptionMeta = document.createElement("meta");
+      descriptionMeta.name = "description";
+      document.head.append(descriptionMeta);
+    }
+
+    descriptionMeta.content = seo.description;
+
+    updateMetaContent('meta[property="og:title"]', seo.title);
+    updateMetaContent('meta[property="og:description"]', seo.socialDescription);
+    updateMetaContent('meta[property="og:locale"]', seo.locale);
+    updateMetaContent('meta[name="twitter:title"]', seo.title);
+    updateMetaContent(
+      'meta[name="twitter:description"]',
+      seo.socialDescription,
+    );
 
     try {
       window.localStorage.setItem(STORAGE_KEY, language);
@@ -51,6 +108,12 @@ export function LanguageProvider({ children }: PropsWithChildren) {
       {children}
     </LanguageContext.Provider>
   );
+}
+
+function updateMetaContent(selector: string, content: string) {
+  document
+    .querySelector<HTMLMetaElement>(selector)
+    ?.setAttribute("content", content);
 }
 
 export function useLanguage(): LanguageContextValue {

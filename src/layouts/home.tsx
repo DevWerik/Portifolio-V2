@@ -1,42 +1,113 @@
-import { Laptop, MapPin } from "lucide-react";
+import { ArrowRight, Code2, Mail, MapPin } from "lucide-react";
 import { useLayoutEffect, useRef } from "react";
-import { LogosCarousel } from "../../@/components/ui/logos-carousel";
-import { Experience01 } from "../../@/components/experience-01";
-import { Certificates } from "../../@/components/ui/certificates";
-import { ContactForm } from "../../@/components/ui/forms";
-import { Projects } from "../../@/components/ui/projects";
+import { FaGithub, FaLinkedinIn } from "react-icons/fa";
+
+import { Experience01 } from "@/components/experience-01";
+import { Certificates } from "@/components/ui/certificates";
+import { ContactForm } from "@/components/ui/forms";
+import { Projects } from "@/components/ui/projects";
 import { useLanguage } from "@/i18n/language-context";
-import { cn } from "../lib/utils";
-import { gsap } from "../lib/gsap";
+import { gsap } from "@/lib/gsap";
+
+const PROFILE_LINKS = {
+  github: "https://github.com/DevWerik",
+  linkedin: "https://www.linkedin.com/in/werik-santos/",
+} as const;
 
 const homeContent = {
   pt: {
-    profileAlt: "Foto de perfil de Werik Santos",
-    status: "Online",
-    location: "Salvador, Bahia — Brasil",
-    eyebrow: "Portfólio",
-    title: "Werik Santos — Desenvolvedor Full Stack",
+    eyebrow: "Desenvolvedor Full Stack",
+    title:
+      "Construo produtos web claros, acessíveis e preparados para evoluir.",
     introduction:
-      "Desenvolvedor Full Stack focado na construção de aplicações modernas, escaláveis e com boa experiência de uso.",
+      "Sou Werik Santos, desenvolvedor com foco em React e Node.js. Transformo necessidades de produto em interfaces responsivas e APIs organizadas e testáveis.",
     details:
-      "Trabalho principalmente com React, TypeScript, Node.js e desenvolvimento de APIs, buscando sempre escrever software organizado, acessível e sustentável.",
-    specialty: "Especialidade",
-    role: "DESENVOLVEDOR FULL STACK",
+      "Valorizo código sustentável, boa experiência de uso e decisões técnicas que façam sentido para cada projeto.",
+    location: "Salvador, Bahia — Brasil",
+    visualAlt: "Monograma WS, identidade visual de Werik Santos",
+    visualLabel: "Werik Santos",
+    visualRole: "React · Node.js · TypeScript",
+    projectsCta: "Ver projetos",
+    contactCta: "Entrar em contato",
+    githubAria: "Acessar GitHub de Werik Santos (abre em nova aba)",
+    linkedinAria: "Acessar LinkedIn de Werik Santos (abre em nova aba)",
+    skillsEyebrow: "Competências",
+    skillsTitle: "Tecnologias aplicadas com propósito",
+    skillsDescription:
+      "Uma base full stack organizada entre interface, servidor, qualidade e ferramentas de entrega.",
+    groups: {
+      frontend: "Front-end",
+      backend: "Back-end",
+      quality: "Qualidade",
+      tools: "Ferramentas",
+    },
   },
   en: {
-    profileAlt: "Portrait of Werik Santos",
-    status: "Online",
-    location: "Salvador, Bahia — Brazil",
-    eyebrow: "Portfolio",
-    title: "Werik Santos — Full-Stack Developer",
+    eyebrow: "Full-Stack Developer",
+    title: "I build clear, accessible web products designed to evolve.",
     introduction:
-      "Full-stack developer focused on building modern, scalable applications with thoughtful user experiences.",
+      "I’m Werik Santos, a developer focused on React and Node.js. I turn product needs into responsive interfaces and well-structured, testable APIs.",
     details:
-      "I primarily work with React, TypeScript, Node.js, and API development, always aiming to write well-structured, accessible, and maintainable software.",
-    specialty: "Specialty",
-    role: "FULL-STACK DEVELOPER",
+      "I value maintainable code, thoughtful user experiences, and technical decisions that fit each project.",
+    location: "Salvador, Bahia — Brazil",
+    visualAlt: "WS monogram, Werik Santos’ visual identity",
+    visualLabel: "Werik Santos",
+    visualRole: "React · Node.js · TypeScript",
+    projectsCta: "View projects",
+    contactCta: "Get in touch",
+    githubAria: "Open Werik Santos’ GitHub (opens in a new tab)",
+    linkedinAria: "Open Werik Santos’ LinkedIn (opens in a new tab)",
+    skillsEyebrow: "Expertise",
+    skillsTitle: "Technology applied with purpose",
+    skillsDescription:
+      "A full-stack foundation organized across interfaces, servers, quality, and delivery tools.",
+    groups: {
+      frontend: "Front-end",
+      backend: "Back-end",
+      quality: "Quality",
+      tools: "Tools",
+    },
   },
 } as const;
+
+const skillGroups = [
+  {
+    key: "frontend",
+    skills: [
+      "React",
+      "TypeScript",
+      "JavaScript",
+      "Tailwind CSS",
+      "React Router",
+      "React Hook Form",
+      "Zod",
+    ],
+  },
+  {
+    key: "backend",
+    skills: [
+      "Node.js",
+      "NestJS",
+      "Fastify",
+      "PostgreSQL",
+      "Prisma",
+      "REST APIs",
+    ],
+  },
+  {
+    key: "quality",
+    skills: [
+      "Vitest",
+      { pt: "Testes unitários", en: "Unit testing" },
+      { pt: "Testes E2E", en: "E2E testing" },
+      { pt: "Acessibilidade", en: "Accessibility" },
+    ],
+  },
+  {
+    key: "tools",
+    skills: ["Git", "GitHub", "Figma", "GSAP"],
+  },
+] as const;
 
 export function Home() {
   const { language } = useLanguage();
@@ -49,20 +120,33 @@ export function Home() {
     media.add("(prefers-reduced-motion: no-preference)", () => {
       const context = gsap.context(() => {
         const heroTimeline = gsap.timeline({
-          defaults: { duration: 0.75, ease: "power3.out" },
+          defaults: { duration: 0.72, ease: "power3.out" },
         });
 
         heroTimeline
           .from(
-            "[data-gsap-hero-visual]",
-            { opacity: 0, scale: 0.98, y: 24, duration: 0.9 },
-            0.05,
+            "[data-gsap-hero-item]",
+            { opacity: 0, y: 20, stagger: 0.08 },
+            0.08,
           )
           .from(
-            "[data-gsap-hero-item]",
-            { opacity: 0, y: 20, stagger: 0.09 },
-            0.16,
+            "[data-gsap-hero-visual]",
+            { opacity: 0, scale: 0.98, y: 20, duration: 0.85 },
+            0.18,
           );
+
+        gsap.from("[data-gsap-skill-group]", {
+          opacity: 0,
+          y: 18,
+          duration: 0.65,
+          stagger: 0.08,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: "[data-gsap-skills]",
+            start: "top 84%",
+            once: true,
+          },
+        });
 
         gsap.from("[data-gsap-experience]", {
           opacity: 0,
@@ -86,139 +170,170 @@ export function Home() {
   return (
     <main
       ref={mainRef}
-      className={cn(
-        "relative min-h-screen overflow-x-clip px-5 pb-20 pt-32 text-white sm:px-8 lg:px-12",
-      )}
+      id="conteudo-principal"
+      tabIndex={-1}
+      className="relative min-h-screen overflow-x-clip px-5 pb-0 pt-28 text-white outline-none sm:px-8 sm:pt-32 lg:px-12"
     >
       <div className="relative mx-auto max-w-7xl">
         <section
           id="inicio"
           aria-labelledby="home-title"
-          className="scroll-mt-24"
+          tabIndex={-1}
+          className="scroll-mt-28 outline-none"
         >
-          {/* HERO */}
-          <div className=" grid  grid-cols-1 gap-10 lg:grid-cols-[minmax(260px,360px)_1fr] lg:gap-16">
-            {/* FOTO */}
-            <div data-gsap-hero-visual className="flex flex-col">
-              <div className=" group relative aspect-square w-full overflow-hidden rounded-[2rem] border border-white/10 bg-zinc-900 ">
-                {/* Substitua por sua imagem */}
-                <img
-                  src="/foto-perfil.jpg"
-                  alt={content.profileAlt}
-                  className=" h-full w-full object-cover grayscale transition-all duration-700 group-hover:scale-105 group-hover:grayscale-0"
-                />
+          <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(290px,380px)] lg:gap-16 xl:gap-24">
+            <div className="min-w-0">
+              <div
+                data-gsap-hero-item
+                className="flex flex-wrap items-center gap-3 text-xs font-medium uppercase tracking-[0.22em] text-zinc-300 sm:text-sm sm:tracking-[0.25em]"
+              >
+                <Code2 className="size-4 shrink-0" aria-hidden="true" />
+                <span>{content.eyebrow}</span>
+              </div>
 
-                {/* Overlay */}
-                <div
+              <h1
+                data-gsap-hero-item
+                id="home-title"
+                className="mt-6 max-w-4xl text-4xl font-medium leading-[1.02] tracking-[-0.045em] text-balance sm:text-6xl lg:text-7xl"
+              >
+                {content.title}
+              </h1>
+
+              <p
+                data-gsap-hero-item
+                className="mt-7 max-w-2xl text-base leading-7 text-zinc-300 sm:text-lg sm:leading-8"
+              >
+                {content.introduction}
+              </p>
+
+              <p
+                data-gsap-hero-item
+                className="mt-3 max-w-2xl text-sm leading-7 text-zinc-400 sm:text-base"
+              >
+                {content.details}
+              </p>
+
+              <div
+                data-gsap-hero-item
+                className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap"
+              >
+                <a
+                  href="#projetos"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-white px-6 text-sm font-semibold text-black transition hover:bg-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-4 focus-visible:ring-offset-black"
+                >
+                  {content.projectsCta}
+                  <ArrowRight className="size-4" aria-hidden="true" />
+                </a>
+
+                <a
+                  href="#contato"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-white/20 px-6 text-sm font-semibold text-white transition hover:border-white/50 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-4 focus-visible:ring-offset-black"
+                >
+                  {content.contactCta}
+                  <Mail className="size-4" aria-hidden="true" />
+                </a>
+              </div>
+
+              <div
+                data-gsap-hero-item
+                className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-3 text-sm text-zinc-300"
+              >
+                <span className="flex items-center gap-2">
+                  <MapPin className="size-4 shrink-0" aria-hidden="true" />
+                  {content.location}
+                </span>
+
+                <span
                   aria-hidden="true"
-                  className=" absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent"
+                  className="hidden h-4 w-px bg-white/15 sm:block"
                 />
 
-                {/* Indicador */}
-                <div className=" absolute bottom-4 left-4 flex items-center gap-2 rounded-full border border-white/10 bg-black/50 px-3 py-2 text-xs text-zinc-300 backdrop-blur-md">
-                  <span className=" h-1.5 w-1.5 rounded-full bg-emerald-400" />
-
-                  <span>{content.status}</span>
-                </div>
-              </div>
-
-              {/* LOCALIZAÇÃO */}
-              <div className=" mt-5 flex items-center gap-2 text-sm text-zinc-400 ">
-                <MapPin className="h-4 w-4" aria-hidden="true" />
-
-                <span>{content.location}</span>
-              </div>
-            </div>
-
-            {/* CONTEÚDO */}
-            <div className="flex flex-col justify-between">
-              {/* TOPO */}
-              <div>
-                <div
-                  data-gsap-hero-item
-                  className=" flex items-center gap-4 text-sm uppercase tracking-[0.25em] text-zinc-500"
+                <a
+                  href={PROFILE_LINKS.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={content.githubAria}
+                  className="inline-flex items-center gap-1.5 transition hover:text-white focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
                 >
-                  <span aria-hidden="true" className="h-px w-8 bg-zinc-600" />
-                  {content.eyebrow}
-                </div>
+                  <FaGithub className="size-4" aria-hidden="true" />
+                  GitHub
+                </a>
 
-                {/* SOBRE */}
-                <h1
-                  data-gsap-hero-item
-                  id="home-title"
-                  className=" mt-6 max-w-4xl text-5xl font-medium leading-[0.95] tracking-tight sm:text-6xl lg:text-8xl"
+                <a
+                  href={PROFILE_LINKS.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={content.linkedinAria}
+                  className="inline-flex items-center gap-1.5 transition hover:text-white focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
                 >
-                  {content.title}
-                </h1>
-
-                <p
-                  data-gsap-hero-item
-                  className=" mt-8 max-w-2xl text-base leading-7 text-zinc-400 sm:text-lg sm:leading-8"
-                >
-                  {content.introduction}
-                </p>
-
-                <p
-                  data-gsap-hero-item
-                  className=" mt-4 max-w-2xl text-base leading-7 text-zinc-500 sm:text-lg sm:leading-8"
-                >
-                  {content.details}
-                </p>
-              </div>
-
-              {/* DEV FULLSTACK */}
-              <div data-gsap-hero-item className="mt-16 lg:mt-20">
-                <div className=" flex items-end justify-between gap-6 border-b border-white/10 pb-5">
-                  <span className=" text-xs uppercase tracking-[0.3em] text-zinc-500">
-                    {content.specialty}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <Laptop
-                      className="h-4 w-4 shrink-0 text-zinc-400"
-                      aria-hidden="true"
-                    />
-
-                    <span className="text-sm uppercase tracking-[0.2em] text-zinc-300">
-                      {content.role}
-                    </span>
-                  </div>
-                </div>
+                  <FaLinkedinIn className="size-4" aria-hidden="true" />
+                  LinkedIn
+                </a>
               </div>
             </div>
+
+            <figure
+              data-gsap-hero-visual
+              className="mx-auto w-full max-w-sm overflow-hidden rounded-[2rem] border border-white/12 bg-[#202020] lg:mx-0"
+            >
+              <img
+                src="/WS.png"
+                alt={content.visualAlt}
+                width={2000}
+                height={2000}
+                fetchPriority="high"
+                className="aspect-square w-full object-cover"
+              />
+
+              <figcaption className="flex flex-col gap-1 border-t border-white/10 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                <span className="text-sm font-semibold text-white">
+                  {content.visualLabel}
+                </span>
+                <span className="text-xs text-zinc-300">
+                  {content.visualRole}
+                </span>
+              </figcaption>
+            </figure>
           </div>
 
-          <div className="mt-20 w-full lg:mt-32">
-            <div className="mx-auto w-full max-w-7xl overflow-hidden px-0 sm:px-6 lg:px-8">
-              <LogosCarousel className="gap-1 [--column-count:4] sm:gap-6">
-                {[
-                  "React",
-                  "Node.js",
-                  "TypeScript",
-                  "GSAP",
-                  "Tailwind CSS",
-                  "JavaScript",
-                  "PostgreSQL",
-                  "NestJS",
-                  "Prisma",
-                  "Framer Motion",
-                  "REST APIs",
-                  "Figma",
-                  "Git",
-                  "Styled-Components",
-                  "API Restful",
-                  "React Hook Form",
-                  "React Router",
-                  "Context API",
-                  "Zod",
-                ].map((technology) => (
-                  <span
-                    key={technology}
-                    className="whitespace-nowrap rounded-full border border-white/10 bg-white/5 px-[clamp(0.375rem,1.75vw,1rem)] py-2 text-[clamp(0.625rem,3vw,0.875rem)] font-medium text-white/80 backdrop-blur-sm transition-colors hover:bg-white/10 hover:text-white sm:px-5 sm:py-2.5 sm:text-base"
+          <div data-gsap-skills className="mt-24 lg:mt-32">
+            <div className="max-w-2xl">
+              <p className="text-xs font-medium uppercase tracking-[0.25em] text-zinc-400">
+                {content.skillsEyebrow}
+              </p>
+              <h2 className="mt-4 text-3xl font-medium tracking-tight text-white sm:text-4xl">
+                {content.skillsTitle}
+              </h2>
+              <p className="mt-4 text-base leading-7 text-zinc-400">
+                {content.skillsDescription}
+              </p>
+            </div>
+
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {skillGroups.map((group) => (
+                <article
+                  data-gsap-skill-group
+                  key={group.key}
+                  className="rounded-2xl border border-white/10 bg-white/[0.035] p-5"
+                >
+                  <h3 className="text-sm font-semibold text-white">
+                    {content.groups[group.key]}
+                  </h3>
+                  <ul
+                    className="mt-4 flex flex-wrap gap-2"
+                    aria-label={content.groups[group.key]}
                   >
-                    {technology}
-                  </span>
-                ))}
-              </LogosCarousel>
+                    {group.skills.map((skill) => (
+                      <li
+                        key={typeof skill === "string" ? skill : skill.en}
+                        className="rounded-full border border-white/10 bg-black/30 px-3 py-1.5 text-xs text-zinc-300"
+                      >
+                        {typeof skill === "string" ? skill : skill[language]}
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+              ))}
             </div>
           </div>
         </section>
@@ -227,7 +342,8 @@ export function Home() {
           data-gsap-experience
           id="experiencia"
           aria-labelledby="experience-title"
-          className="w-full py-20 lg:py-32"
+          tabIndex={-1}
+          className="w-full scroll-mt-28 py-20 outline-none lg:py-32"
         >
           <Experience01 />
         </section>

@@ -1,12 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LoaderCircle, Mail, Send } from "lucide-react";
+import { LoaderCircle, Mail, Send, ShieldCheck } from "lucide-react";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaGithub, FaLinkedinIn } from "react-icons/fa";
 import { z } from "zod";
 
 import { useLanguage, type Language } from "@/i18n/language-context";
-import { gsap } from "gsap";
+import { gsap } from "@/lib/gsap";
 import { cn } from "@/lib/utils";
 
 import { Button } from "./button";
@@ -18,6 +18,7 @@ const CONTACT = {
 };
 
 const WEB3FORMS_ACCESS_KEY = "29a7722d-e098-4527-aec6-f856af018e30";
+const CONTACT_SUBMISSION_TIMEOUT_MS = 15_000;
 
 const CONTACT_COPY = {
   pt: {
@@ -56,6 +57,10 @@ const CONTACT_COPY = {
     success: "Mensagem enviada com sucesso! Responderei assim que possível.",
     error:
       "Não foi possível enviar a mensagem. Tente novamente ou use o e-mail acima.",
+    timeout:
+      "O envio demorou mais que o esperado. Verifique sua conexão e tente novamente.",
+    privacyNotice:
+      "Ao enviar, seu nome, e-mail e mensagem serão encaminhados pelo Web3Forms para que eu possa responder ao seu contato.",
     web3FormsFromName: "Portfólio de Werik Santos",
     web3FormsSubjectPrefix: "[Portfólio]",
   },
@@ -96,6 +101,10 @@ const CONTACT_COPY = {
       "Message sent successfully! I’ll get back to you as soon as possible.",
     error:
       "Your message could not be sent. Please try again or use the email address above.",
+    timeout:
+      "The request took longer than expected. Check your connection and try again.",
+    privacyNotice:
+      "When you submit, your name, email address, and message will be sent through Web3Forms so I can reply to your inquiry.",
     web3FormsFromName: "Werik Santos Portfolio",
     web3FormsSubjectPrefix: "[Portfolio]",
   },
@@ -130,7 +139,7 @@ function createContactSchema(language: Language) {
 }
 
 type ContactFormValues = z.infer<ReturnType<typeof createContactSchema>>;
-type SubmissionStatus = "idle" | "success" | "error";
+type SubmissionStatus = "idle" | "success" | "error" | "timeout";
 
 const CONTACT_FIELD_NAMES = ["name", "email", "subject", "message"] as const;
 
@@ -139,7 +148,7 @@ type Web3FormsResponse = {
 };
 
 const fieldClassName =
-  "mt-2 w-full rounded-xl border border-white/10 bg-black/25 px-4 py-3 text-sm text-white outline-none transition placeholder:text-zinc-600 hover:border-white/20 focus:border-white/40 focus:ring-4 focus:ring-white/5 disabled:cursor-not-allowed disabled:opacity-60 aria-invalid:border-red-400/60 aria-invalid:ring-4 aria-invalid:ring-red-400/10";
+  "mt-2 w-full rounded-xl border border-white/15 bg-black/40 px-4 py-3 text-sm text-white outline-none transition placeholder:text-zinc-500 hover:border-white/30 focus:border-white/50 focus:ring-4 focus:ring-white/10 disabled:cursor-not-allowed disabled:opacity-60 aria-invalid:border-red-400/70 aria-invalid:ring-4 aria-invalid:ring-red-400/15";
 
 export function ContactForm() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -175,7 +184,11 @@ export function ContactForm() {
       ? copy.success
       : submissionStatus === "error"
         ? copy.error
-        : "";
+        : submissionStatus === "timeout"
+          ? copy.timeout
+          : "";
+  const submissionHasError =
+    submissionStatus === "error" || submissionStatus === "timeout";
 
   useEffect(() => {
     if (previousLanguageRef.current === language) return;
@@ -193,6 +206,12 @@ export function ContactForm() {
 
   async function onSubmit(values: ContactFormValues) {
     setSubmissionStatus("idle");
+
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(
+      () => controller.abort(),
+      CONTACT_SUBMISSION_TIMEOUT_MS,
+    );
 
     const formData = new FormData();
     formData.append("access_key", WEB3FORMS_ACCESS_KEY);
@@ -216,6 +235,7 @@ export function ContactForm() {
           Accept: "application/json",
         },
         body: formData,
+        signal: controller.signal,
       });
       const data = (await response.json()) as Web3FormsResponse;
 
@@ -226,7 +246,9 @@ export function ContactForm() {
       setSubmissionStatus("success");
       reset();
     } catch {
-      setSubmissionStatus("error");
+      setSubmissionStatus(controller.signal.aborted ? "timeout" : "error");
+    } finally {
+      window.clearTimeout(timeoutId);
     }
   }
 
@@ -309,13 +331,14 @@ export function ContactForm() {
       ref={sectionRef}
       id="contato"
       aria-labelledby="contact-title"
-      className="scroll-mt-24 py-20 lg:py-32"
+      tabIndex={-1}
+      className="scroll-mt-24 py-20 outline-none lg:py-32"
     >
       <div className="mx-auto max-w-4xl">
         <header className="text-center">
           <div
             data-gsap-contact-heading
-            className="flex items-center justify-center gap-4 text-xs uppercase tracking-[0.28em] text-zinc-400"
+            className="flex items-center justify-center gap-4 text-xs uppercase tracking-[0.28em] text-zinc-300"
           >
             <span aria-hidden="true" className="h-px w-8 bg-zinc-600" />
             {copy.eyebrow}
@@ -332,7 +355,7 @@ export function ContactForm() {
 
           <p
             data-gsap-contact-heading
-            className="mx-auto mt-5 max-w-2xl text-base leading-7 text-zinc-400"
+            className="mx-auto mt-5 max-w-2xl text-base leading-7 text-zinc-300"
           >
             {copy.description}
           </p>
@@ -354,7 +377,7 @@ export function ContactForm() {
             ))}
           </ul>
 
-          <p data-gsap-contact-email className="mt-4 text-sm text-zinc-500">
+          <p data-gsap-contact-email className="mt-4 text-sm text-zinc-400">
             {copy.directEmail}{" "}
             <a
               href={`mailto:${CONTACT.email}`}
@@ -373,7 +396,7 @@ export function ContactForm() {
             setSubmissionStatus("idle");
           }}
           aria-busy={isSubmitting}
-          className="mt-12 rounded-3xl border border-white/10 bg-white/[0.035] p-5 text-left backdrop-blur-sm sm:p-8 lg:p-10"
+          className="mt-12 rounded-3xl border border-white/15 bg-white/[0.05] p-5 text-left backdrop-blur-sm sm:p-8 lg:p-10"
         >
           <input
             type="checkbox"
@@ -386,7 +409,7 @@ export function ContactForm() {
 
           <div className="grid gap-6 sm:grid-cols-2">
             <div>
-              <label htmlFor="contact-name" className="text-sm text-zinc-300">
+              <label htmlFor="contact-name" className="text-sm text-zinc-200">
                 {copy.fields.name}
               </label>
               <input
@@ -418,7 +441,7 @@ export function ContactForm() {
             </div>
 
             <div>
-              <label htmlFor="contact-email" className="text-sm text-zinc-300">
+              <label htmlFor="contact-email" className="text-sm text-zinc-200">
                 {copy.fields.email}
               </label>
               <input
@@ -452,7 +475,7 @@ export function ContactForm() {
           </div>
 
           <div className="mt-6">
-            <label htmlFor="contact-subject" className="text-sm text-zinc-300">
+            <label htmlFor="contact-subject" className="text-sm text-zinc-200">
               {copy.fields.subject}
             </label>
             <input
@@ -483,7 +506,7 @@ export function ContactForm() {
           </div>
 
           <div className="mt-6">
-            <label htmlFor="contact-message" className="text-sm text-zinc-300">
+            <label htmlFor="contact-message" className="text-sm text-zinc-200">
               {copy.fields.message}
             </label>
             <textarea
@@ -515,10 +538,18 @@ export function ContactForm() {
             )}
           </div>
 
+          <p className="mt-6 flex items-start gap-2 rounded-xl border border-white/10 bg-black/25 px-4 py-3 text-xs leading-5 text-zinc-300">
+            <ShieldCheck
+              className="mt-0.5 size-4 shrink-0 text-zinc-200"
+              aria-hidden="true"
+            />
+            <span>{copy.privacyNotice}</span>
+          </p>
+
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="mt-8 h-12 w-full rounded-xl bg-white px-6 text-sm font-semibold text-black hover:bg-zinc-200"
+            className="mt-5 h-12 w-full rounded-xl bg-white px-6 text-sm font-semibold text-black hover:bg-zinc-200"
           >
             {isSubmitting ? (
               <>
@@ -542,13 +573,11 @@ export function ContactForm() {
           </Button>
 
           <p
-            role={submissionStatus === "error" ? "alert" : "status"}
+            role={submissionHasError ? "alert" : "status"}
             aria-live="polite"
             className={cn(
               "mt-4 min-h-5 text-center text-sm",
-              submissionStatus === "error"
-                ? "text-red-300"
-                : "text-emerald-300",
+              submissionHasError ? "text-red-300" : "text-emerald-300",
             )}
           >
             {submissionMessage}

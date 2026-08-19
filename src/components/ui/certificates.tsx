@@ -2,13 +2,13 @@ import {
   Award,
   BookOpen,
   CalendarDays,
+  CircleDashed,
   ExternalLink,
   GraduationCap,
 } from "lucide-react";
 import { useLayoutEffect, useMemo, useRef } from "react";
 
-import { gsap } from "gsap";
-
+import { gsap } from "@/lib/gsap";
 import { useLanguage, type Language } from "@/i18n/language-context";
 
 export type Certificate = {
@@ -17,7 +17,7 @@ export type Certificate = {
   studied: string;
   platform: string;
   year: number;
-  certificateUrl: string;
+  certificateUrl?: string;
 };
 
 type CertificatesProps = {
@@ -41,6 +41,7 @@ const CERTIFICATES_COPY = {
     platform: "Plataforma",
     completion: "Conclusão",
     viewCertificate: "Ver certificado",
+    linkUpdating: "Link em atualização",
     viewCertificateAria: (name: string) =>
       `Ver certificado ${name} (abre em nova aba)`,
   },
@@ -55,6 +56,7 @@ const CERTIFICATES_COPY = {
     platform: "Platform",
     completion: "Completion",
     viewCertificate: "View certificate",
+    linkUpdating: "Link being updated",
     viewCertificateAria: (name: string) =>
       `View certificate: ${name} (opens in a new tab)`,
   },
@@ -62,22 +64,20 @@ const CERTIFICATES_COPY = {
 
 const CERTIFICATES: LocalizedCertificate[] = [
   {
-    id: "full-stack",
+    id: "devclub-react-front-end",
     name: {
-      pt: "Desenvolvimento Full Stack",
-      en: "Full-Stack Development",
+      pt: "Front-end com React",
+      en: "Front-End with React",
     },
     studied: {
-      pt: "React, Tailwind CSS, Next.js, Styled Components, TypeScript, Node.js, Prisma, JWT, Jest, PostgreSQL, Zod, Docker, criação de APIs RESTful e integração com banco de dados.",
-      en: "React, Tailwind CSS, Next.js, Styled Components, TypeScript, Node.js, Prisma, JWT, Jest, PostgreSQL, Zod, Docker, RESTful API development, and database integration.",
+      pt: "Componentização, hooks, gerenciamento de estado, responsividade e acessibilidade.",
+      en: "Component architecture, hooks, state management, responsive design, and accessibility.",
     },
-    platform: "Rocketseat",
+    platform: "DevClub",
     year: 2025,
-    certificateUrl:
-      "https://app.rocketseat.com.br/certificates/2a60cae3-4976-4318-88a8-38e185497b2e",
   },
   {
-    id: "react-front-end",
+    id: "rocketseat-react-front-end",
     name: {
       pt: "Front-end com React",
       en: "Front-End with React",
@@ -86,20 +86,35 @@ const CERTIFICATES: LocalizedCertificate[] = [
       pt: "Componentização, hooks, gerenciamento de estado, responsividade, acessibilidade e TypeScript.",
       en: "Component architecture, hooks, state management, responsive design, accessibility, and TypeScript.",
     },
-    platform: "DevClub, Rocketseat",
+    platform: "Rocketseat",
     year: 2025,
     certificateUrl:
       "https://app.rocketseat.com.br/certificates/81f16ba3-0210-4487-9691-3e3ebc2b08ee",
   },
   {
-    id: "node-back-end",
+    id: "rocketseat-full-stack",
+    name: {
+      pt: "Desenvolvimento Full Stack",
+      en: "Full-Stack Development",
+    },
+    studied: {
+      pt: "Integração entre front-end e back-end, APIs REST, autenticação, banco de dados e entrega de aplicações completas.",
+      en: "Front-end and back-end integration, REST APIs, authentication, databases, and end-to-end application delivery.",
+    },
+    platform: "Rocketseat",
+    year: 2025,
+    certificateUrl:
+      "https://app.rocketseat.com.br/certificates/2a60cae3-4976-4318-88a8-38e185497b2e",
+  },
+  {
+    id: "rocketseat-node-back-end",
     name: {
       pt: "Back-end com Node.js",
       en: "Back-End with Node.js",
     },
     studied: {
-      pt: "Arquitetura de APIs, autenticação, persistência de dados, testes, princípios SOLID, NestJS, Docker e conteinerização de aplicações.",
-      en: "API architecture, authentication, data persistence, testing, SOLID principles, NestJS, Docker, and application containerization.",
+      pt: "Arquitetura de APIs, autenticação, persistência de dados, validação e testes no ecossistema Node.js.",
+      en: "API architecture, authentication, data persistence, validation, and testing in the Node.js ecosystem.",
     },
     platform: "Rocketseat",
     year: 2026,
@@ -175,7 +190,8 @@ export function Certificates({ certificates }: CertificatesProps) {
       ref={sectionRef}
       id="certificados"
       aria-labelledby="certificates-title"
-      className="scroll-mt-24 py-20 lg:py-32"
+      tabIndex={-1}
+      className="scroll-mt-24 py-20 outline-none lg:py-32"
     >
       <div className="grid gap-12 lg:grid-cols-[minmax(240px,0.7fr)_1.3fr] lg:gap-20">
         <header className="lg:sticky lg:top-28 lg:self-start">
@@ -213,7 +229,7 @@ export function Certificates({ certificates }: CertificatesProps) {
             <li key={certificate.id}>
               <article
                 data-gsap-certificate-card
-                className="group border-b border-white/10 py-8 transition-colors sm:px-6 sm:py-10 sm:hover:bg-white/25"
+                className="group border-b border-white/10 py-8 transition-colors sm:px-6 sm:py-10 sm:hover:bg-white/[0.025]"
               >
                 <div className="flex items-start justify-between gap-6">
                   <span
@@ -265,16 +281,23 @@ export function Certificates({ certificates }: CertificatesProps) {
                   </div>
                 </dl>
 
-                <a
-                  href={certificate.certificateUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={copy.viewCertificateAria(certificate.name)}
-                  className="mt-7 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-medium text-zinc-200 transition duration-300 hover:-translate-y-0.5 hover:border-white hover:bg-white hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-4 focus-visible:ring-offset-black"
-                >
-                  {copy.viewCertificate}
-                  <ExternalLink className="size-4" aria-hidden="true" />
-                </a>
+                {certificate.certificateUrl ? (
+                  <a
+                    href={certificate.certificateUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={copy.viewCertificateAria(certificate.name)}
+                    className="mt-7 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-medium text-zinc-200 transition duration-300 hover:-translate-y-0.5 hover:border-white hover:bg-white hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-4 focus-visible:ring-offset-black"
+                  >
+                    {copy.viewCertificate}
+                    <ExternalLink className="size-4" aria-hidden="true" />
+                  </a>
+                ) : (
+                  <span className="mt-7 inline-flex items-center gap-2 rounded-full border border-dashed border-white/15 px-4 py-2.5 text-sm text-zinc-400">
+                    <CircleDashed className="size-4" aria-hidden="true" />
+                    {copy.linkUpdating}
+                  </span>
+                )}
               </article>
             </li>
           ))}

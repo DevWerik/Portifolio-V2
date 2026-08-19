@@ -2,16 +2,23 @@ import {
   useEffect,
   useRef,
   useState,
+  type FocusEvent as ReactFocusEvent,
   type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
 import { ChevronDown, Languages, Menu, X } from "lucide-react";
 import { useLanguage, type Language } from "@/i18n/language-context";
+import { cn } from "@/lib/utils";
 
 const navigationItems = [
   { key: "home", href: "#inicio" },
   { key: "experience", href: "#experiencia" },
   { key: "projects", href: "#projetos" },
   { key: "certificates", href: "#certificados" },
+] as const;
+
+const observedSectionHrefs = [
+  ...navigationItems.map(({ href }) => href),
+  "#contato",
 ] as const;
 
 const languageOptions: Array<{ value: Language; label: string }> = [
@@ -59,17 +66,26 @@ type LanguageMenu = "desktop" | "mobile" | null;
 export function Navbar() {
   const { language, setLanguage } = useLanguage();
   const content = navbarContent[language];
-  const [activeSection, setActiveSection] = useState("#inicio");
+  const [activeSection, setActiveSection] = useState(() => {
+    if (typeof window === "undefined") return "#inicio";
+
+    return observedSectionHrefs.includes(
+      window.location.hash as (typeof observedSectionHrefs)[number],
+    )
+      ? window.location.hash
+      : "#inicio";
+  });
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [languageMenu, setLanguageMenu] = useState<LanguageMenu>(null);
   const desktopLanguageRef = useRef<HTMLDivElement>(null);
   const mobileLanguageRef = useRef<HTMLDivElement>(null);
   const desktopLanguageButtonRef = useRef<HTMLButtonElement>(null);
   const mobileLanguageButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    const sections = navigationItems
-      .map(({ href }) => document.querySelector(href))
+    const sections = observedSectionHrefs
+      .map((href) => document.querySelector(href))
       .filter((section): section is Element => section !== null);
 
     if (!sections.length) return;
@@ -94,6 +110,69 @@ export function Navbar() {
 
     return () => observer.disconnect();
   }, []);
+
+  useEffect(() => {
+    let scrollFrame = 0;
+
+    const syncNavigationFromHistory = () => {
+      const requestedHash = window.location.hash;
+      const isSkipTarget = requestedHash === "#conteudo-principal";
+      const hash = isSkipTarget
+        ? requestedHash
+        : observedSectionHrefs.includes(
+              requestedHash as (typeof observedSectionHrefs)[number],
+            )
+          ? requestedHash
+          : "#inicio";
+
+      setActiveSection(isSkipTarget ? "#inicio" : hash);
+      setIsMobileMenuOpen(false);
+      setLanguageMenu(null);
+
+      window.cancelAnimationFrame(scrollFrame);
+      scrollFrame = window.requestAnimationFrame(() => {
+        const prefersReducedMotion = window.matchMedia(
+          "(prefers-reduced-motion: reduce)",
+        ).matches;
+        const target = document.querySelector<HTMLElement>(hash);
+
+        target?.scrollIntoView({
+          behavior: prefersReducedMotion || isSkipTarget ? "auto" : "smooth",
+          block: "start",
+        });
+        target?.focus({ preventScroll: true });
+      });
+    };
+
+    window.addEventListener("popstate", syncNavigationFromHistory);
+    window.addEventListener("hashchange", syncNavigationFromHistory);
+
+    if (window.location.hash) {
+      syncNavigationFromHistory();
+    }
+
+    return () => {
+      window.cancelAnimationFrame(scrollFrame);
+      window.removeEventListener("popstate", syncNavigationFromHistory);
+      window.removeEventListener("hashchange", syncNavigationFromHistory);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape" || languageMenu) return;
+
+      event.preventDefault();
+      setIsMobileMenuOpen(false);
+      mobileMenuButtonRef.current?.focus();
+    };
+
+    document.addEventListener("keydown", handleEscape);
+
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [isMobileMenuOpen, languageMenu]);
 
   useEffect(() => {
     if (!languageMenu) return;
@@ -154,10 +233,17 @@ export function Navbar() {
       "(prefers-reduced-motion: reduce)",
     ).matches;
 
-    document.querySelector(href)?.scrollIntoView({
+    if (window.location.hash !== href) {
+      window.history.pushState(null, "", href);
+    }
+
+    const target = document.querySelector<HTMLElement>(href);
+
+    target?.scrollIntoView({
       behavior: prefersReducedMotion ? "auto" : "smooth",
       block: "start",
     });
+    target?.focus({ preventScroll: true });
   };
 
   const handleMobileMenuToggle = () => {
@@ -218,6 +304,17 @@ export function Navbar() {
     options[nextIndex]?.focus();
   };
 
+  const handleLanguageMenuBlur = (event: ReactFocusEvent<HTMLDivElement>) => {
+    const nextTarget = event.relatedTarget;
+
+    if (
+      !(nextTarget instanceof Node) ||
+      !event.currentTarget.contains(nextTarget)
+    ) {
+      setLanguageMenu(null);
+    }
+  };
+
   return (
     <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-5">
       <nav
@@ -233,17 +330,17 @@ export function Navbar() {
               event.preventDefault();
               handleNavigation("#inicio");
             }}
-            className=" flex items-center gap-2 px-3 text-sm font-semibold tracking-tight text-white md:hidden"
+            className="flex min-w-0 items-center gap-2 px-3 text-sm font-semibold tracking-tight text-white lg:hidden"
           >
             <span className=" flex h-7 w-7 items-center justify-center rounded-full bg-white text-xs font-bold text-black">
               W
             </span>
 
-            <span>Werik Santos</span>
+            <span className="truncate">Werik Santos</span>
           </a>
 
           {/* DESKTOP */}
-          <ul className=" hidden items-center gap-1 md:flex">
+          <ul className="hidden items-center gap-1 lg:flex">
             {navigationItems.map((item) => {
               const isActive = activeSection === item.href;
 
@@ -256,15 +353,14 @@ export function Navbar() {
                       handleNavigation(item.href);
                     }}
                     aria-current={isActive ? "location" : undefined}
-                    className=" group relative isolate flex items-center justify-center overflow-hidden rounded-full px-4 py-2.5 text-sm font-medium text-zinc-300 transition-all duration-300 hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                    className={cn(
+                      "flex items-center justify-center rounded-full px-4 py-2.5 text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white",
+                      isActive
+                        ? "bg-white text-black"
+                        : "text-zinc-300 hover:bg-white/10 hover:text-white",
+                    )}
                   >
-                    {/* Fundo branco animado */}
-                    <span
-                      aria-hidden="true"
-                      className=" absolute inset-0 -z-10 scale-75 rounded-full bg-white opacity-0 transition-all duration-300 ease-out group-hover:scale-100 group-hover:opacity-100 group-focus-visible:scale-100 group-focus-visible:opacity-100 "
-                    />
-
-                    <span className="relative z-10 whitespace-nowrap">
+                    <span className="whitespace-nowrap">
                       {content.navigation[item.key]}
                     </span>
                   </a>
@@ -274,7 +370,7 @@ export function Navbar() {
           </ul>
 
           {/* DESKTOP ACTIONS */}
-          <div className="ml-auto hidden items-center md:flex">
+          <div className="ml-auto hidden items-center lg:flex">
             <span aria-hidden="true" className="mx-3 h-6 w-px bg-white/10" />
 
             {/* Idioma */}
@@ -314,6 +410,7 @@ export function Navbar() {
                   role="menu"
                   aria-label={content.languageMenuLabel}
                   onKeyDown={handleLanguageMenuKeyDown}
+                  onBlur={handleLanguageMenuBlur}
                   className="absolute right-0 top-[calc(100%+0.5rem)] z-50 min-w-48 rounded-2xl border border-white/10 bg-black p-1.5"
                 >
                   {languageOptions.map((option) => {
@@ -353,7 +450,15 @@ export function Navbar() {
                 event.preventDefault();
                 handleNavigation("#contato");
               }}
-              className=" ml-2 inline-flex items-center justify-center rounded-full border border-white/12 bg-white/12 px-4 py-2.5 text-sm font-medium text-white transition-all duration-300 hover:border-white hover:bg-white hover:text-black"
+              aria-current={
+                activeSection === "#contato" ? "location" : undefined
+              }
+              className={cn(
+                "ml-2 inline-flex items-center justify-center rounded-full border px-4 py-2.5 text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white",
+                activeSection === "#contato"
+                  ? "border-white bg-white text-black"
+                  : "border-white/15 bg-white/10 text-white hover:border-white/40 hover:bg-white/15",
+              )}
             >
               {content.contact}
             </a>
@@ -361,12 +466,13 @@ export function Navbar() {
 
           {/* MOBILE MENU BUTTON */}
           <button
+            ref={mobileMenuButtonRef}
             type="button"
             onClick={handleMobileMenuToggle}
             aria-label={isMobileMenuOpen ? content.closeMenu : content.openMenu}
             aria-expanded={isMobileMenuOpen}
             aria-controls="mobile-navigation"
-            className=" ml-auto flex h-10 w-10 items-center justify-center rounded-full text-zinc-300 transition-all duration-300 hover:bg-white hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white md:hidden"
+            className="ml-auto flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-zinc-200 transition-all duration-300 hover:bg-white hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white lg:hidden"
           >
             {isMobileMenuOpen ? (
               <X className="h-5 w-5" aria-hidden="true" />
@@ -379,7 +485,8 @@ export function Navbar() {
         {/* MOBILE NAVIGATION */}
         <div
           id="mobile-navigation"
-          className={` mt-2 overflow-hidden rounded-3xl border border-white/10 bg-black transition-all duration-300 md:hidden
+          aria-hidden={!isMobileMenuOpen}
+          className={`mt-2 overflow-hidden rounded-3xl border border-white/10 bg-black transition-all duration-300 lg:hidden
             ${
               isMobileMenuOpen
                 ? "visible max-h-125 translate-y-0 opacity-100"
@@ -400,15 +507,19 @@ export function Navbar() {
                       handleNavigation(item.href);
                     }}
                     aria-current={isActive ? "location" : undefined}
-                    className=" group flex w-full items-center rounded-2xl px-4 py-3.5 text-sm font-medium text-zinc-300 transition-all duration-300 hover:bg-white hover:text-black
-                    "
+                    className={cn(
+                      "group flex w-full items-center rounded-2xl px-4 py-3.5 text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white",
+                      isActive
+                        ? "bg-white text-black"
+                        : "text-zinc-200 hover:bg-white/10 hover:text-white",
+                    )}
                   >
                     <span>{content.navigation[item.key]}</span>
 
                     {isActive && (
                       <span
                         aria-hidden="true"
-                        className=" ml-auto h-1.5 w-1.5 rounded-full bg-white transition-colors duration-300 group-hover:bg-black"
+                        className="ml-auto h-1.5 w-1.5 rounded-full bg-current"
                       />
                     )}
                   </a>
@@ -436,7 +547,7 @@ export function Navbar() {
                 aria-haspopup="menu"
                 aria-expanded={languageMenu === "mobile"}
                 aria-controls="mobile-language-menu"
-                className="flex w-full items-center gap-2 rounded-2xl px-4 py-3.5 text-sm font-medium text-zinc-400 transition-all duration-300 hover:bg-white hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                className="flex w-full items-center gap-2 rounded-2xl px-4 py-3.5 text-sm font-medium text-zinc-200 transition-all duration-300 hover:bg-white hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
               >
                 <Languages className="h-4 w-4" aria-hidden="true" />
 
@@ -456,6 +567,7 @@ export function Navbar() {
                   role="menu"
                   aria-label={content.languageMenuLabel}
                   onKeyDown={handleLanguageMenuKeyDown}
+                  onBlur={handleLanguageMenuBlur}
                   className="mt-1 rounded-2xl border border-white/10 p-1.5"
                 >
                   {languageOptions.map((option) => {
@@ -495,7 +607,15 @@ export function Navbar() {
                 event.preventDefault();
                 handleNavigation("#contato");
               }}
-              className=" mt-1 flex w-full items-center justify-center rounded-2xl bg-white px-4 py-3.5 text-sm font-semibold text-black transition-all duration-300 hover:bg-zinc-200"
+              aria-current={
+                activeSection === "#contato" ? "location" : undefined
+              }
+              className={cn(
+                "mt-1 flex w-full items-center justify-center rounded-2xl border px-4 py-3.5 text-sm font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white",
+                activeSection === "#contato"
+                  ? "border-white bg-white text-black"
+                  : "border-white/20 bg-white/10 text-white hover:bg-white hover:text-black",
+              )}
             >
               {content.contact}
             </a>
