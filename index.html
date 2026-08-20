@@ -14,7 +14,9 @@
 
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="pt_BR" />
+    <meta property="og:locale:alternate" content="en_US" />
     <meta property="og:site_name" content="Werik Santos" />
+    <meta property="og:url" content="__SITE_URL__" />
     <meta
       property="og:title"
       content="Werik Santos | Desenvolvedor Full Stack"
@@ -23,8 +25,16 @@
       property="og:description"
       content="Projetos, experiência e formação de Werik Santos em desenvolvimento Full Stack com React, TypeScript e Node.js."
     />
+    <meta property="og:image" content="__OG_IMAGE_URL__" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Portfólio de Werik Santos, Desenvolvedor Full Stack"
+    />
 
-    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta
       name="twitter:title"
       content="Werik Santos | Desenvolvedor Full Stack"
@@ -33,16 +43,25 @@
       name="twitter:description"
       content="Projetos, experiência e formação em desenvolvimento Full Stack com React, TypeScript e Node.js."
     />
+    <meta name="twitter:image" content="__OG_IMAGE_URL__" />
+    <meta
+      name="twitter:image:alt"
+      content="Portfólio de Werik Santos, Desenvolvedor Full Stack"
+    />
 
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="%BASE_URL%favicon.svg" type="image/svg+xml" />
+    <link rel="canonical" href="__SITE_URL__" />
     <title>Werik Santos | Desenvolvedor Full Stack</title>
 
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "Person",
+        "@id": "__PERSON_ID__",
         "name": "Werik Santos",
         "jobTitle": "Desenvolvedor Full Stack",
+        "url": "__SITE_URL__",
+        "image": "__PROFILE_IMAGE_URL__",
         "email": "mailto:werikanjos02@gmail.com",
         "address": {
           "@type": "PostalAddress",

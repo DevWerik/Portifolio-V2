@@ -1,0 +1,93 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="1200"
+  height="630"
+  viewBox="0 0 1200 630"
+  role="img"
+  aria-labelledby="title description"
+>
+  <title id="title">Werik Santos — Desenvolvedor Full Stack</title>
+  <desc id="description">
+    Imagem de compartilhamento do portfólio de Werik Santos.
+  </desc>
+
+  <defs>
+    <linearGradient id="card" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#27272a" />
+      <stop offset="1" stop-color="#18181b" />
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientTransform="translate(1020 40) rotate(135) scale(520 420)">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.13" />
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="#000000" />
+  <rect width="1200" height="630" fill="url(#glow)" />
+
+  <g font-family="Inter, Arial, sans-serif">
+    <text
+      x="80"
+      y="108"
+      fill="#a1a1aa"
+      font-size="20"
+      font-weight="600"
+      letter-spacing="5"
+    >
+      PORTFÓLIO • 2026
+    </text>
+
+    <text x="80" y="238" fill="#ffffff" font-size="76" font-weight="700">
+      Werik Santos
+    </text>
+
+    <text x="80" y="310" fill="#d4d4d8" font-size="34" font-weight="500">
+      Desenvolvedor Full Stack
+    </text>
+
+    <text x="80" y="403" fill="#a1a1aa" font-size="25">
+      Produtos web claros, acessíveis
+    </text>
+    <text x="80" y="443" fill="#a1a1aa" font-size="25">
+      e preparados para evoluir.
+    </text>
+
+    <rect x="80" y="510" width="410" height="52" rx="26" fill="#ffffff" />
+    <text
+      x="285"
+      y="544"
+      fill="#000000"
+      font-size="18"
+      font-weight="700"
+      text-anchor="middle"
+    >
+      React • TypeScript • Node.js
+    </text>
+
+    <rect
+      x="806"
+      y="65"
+      width="314"
+      height="500"
+      rx="42"
+      fill="url(#card)"
+      stroke="#3f3f46"
+      stroke-width="2"
+    />
+    <text
+      x="963"
+      y="365"
+      fill="#ffffff"
+      font-size="190"
+      font-weight="800"
+      letter-spacing="-16"
+      text-anchor="middle"
+    >
+      WS
+    </text>
+    <line x1="806" y1="485" x2="1120" y2="485" stroke="#3f3f46" />
+    <text x="842" y="526" fill="#ffffff" font-size="17" font-weight="700">
+      Salvador, Bahia
+    </text>
+  </g>
+</svg>

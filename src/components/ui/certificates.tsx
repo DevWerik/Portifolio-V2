@@ -64,10 +64,10 @@ const CERTIFICATES_COPY = {
 
 const CERTIFICATES: LocalizedCertificate[] = [
   {
-    id: "devclub-react-front-end",
+    id: "devclub-front-end",
     name: {
-      pt: "Front-end com React",
-      en: "Front-End with React",
+      pt: "Desenvolvimento Front End",
+      en: "Front-End Development",
     },
     studied: {
       pt: "Componentização, hooks, gerenciamento de estado, responsividade e acessibilidade.",
@@ -77,14 +77,14 @@ const CERTIFICATES: LocalizedCertificate[] = [
     year: 2025,
   },
   {
-    id: "rocketseat-react-front-end",
+    id: "rocketseat-fullstack-81f16",
     name: {
-      pt: "Front-end com React",
-      en: "Front-End with React",
+      pt: "Fullstack",
+      en: "Full-Stack",
     },
     studied: {
-      pt: "Componentização, hooks, gerenciamento de estado, responsividade, acessibilidade e TypeScript.",
-      en: "Component architecture, hooks, state management, responsive design, accessibility, and TypeScript.",
+      pt: "Formação em desenvolvimento de aplicações web com tecnologias de front-end e back-end.",
+      en: "Web application development training covering front-end and back-end technologies.",
     },
     platform: "Rocketseat",
     year: 2025,

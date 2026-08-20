@@ -23,6 +23,7 @@ const SEO_CONTENT = {
       "Portfólio de Werik Santos, desenvolvedor Full Stack especializado em React, TypeScript, Node.js e APIs.",
     socialDescription:
       "Projetos, experiência e formação de Werik Santos em desenvolvimento Full Stack com React, TypeScript e Node.js.",
+    socialImageAlt: "Portfólio de Werik Santos, Desenvolvedor Full Stack",
     locale: "pt_BR",
   },
   en: {
@@ -31,6 +32,7 @@ const SEO_CONTENT = {
       "Werik Santos’ portfolio: a Full-Stack Developer focused on React, TypeScript, Node.js, and APIs.",
     socialDescription:
       "Werik Santos’ projects, experience, and education in Full-Stack development with React, TypeScript, and Node.js.",
+    socialImageAlt: "Werik Santos’ portfolio, Full-Stack Developer",
     locale: "en_US",
   },
 } satisfies Record<
@@ -39,6 +41,7 @@ const SEO_CONTENT = {
     title: string;
     description: string;
     socialDescription: string;
+    socialImageAlt: string;
     locale: string;
   }
 >;
@@ -93,6 +96,8 @@ export function LanguageProvider({ children }: PropsWithChildren) {
       'meta[name="twitter:description"]',
       seo.socialDescription,
     );
+    updateMetaContent('meta[property="og:image:alt"]', seo.socialImageAlt);
+    updateMetaContent('meta[name="twitter:image:alt"]', seo.socialImageAlt);
 
     try {
       window.localStorage.setItem(STORAGE_KEY, language);

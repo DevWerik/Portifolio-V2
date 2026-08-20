@@ -4,6 +4,7 @@ import { FaGithub } from "react-icons/fa";
 
 import { gsap } from "@/lib/gsap";
 import { useLanguage, type Language } from "@/i18n/language-context";
+import { publicAsset } from "@/lib/public-asset";
 
 type ProjectStatus = "completed" | "inProgress";
 
@@ -236,7 +237,7 @@ function ProjectVisual({
     return (
       <div className="aspect-1911/888 overflow-hidden border-b border-white/10 bg-zinc-950">
         <img
-          src="/Projeto.png"
+          src={publicAsset("Projeto.png")}
           alt={project.imageAlt[language]}
           width={1911}
           height={888}

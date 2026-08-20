@@ -17,7 +17,8 @@ const CONTACT = {
   linkedinUrl: "https://www.linkedin.com/in/werik-santos/",
 };
 
-const WEB3FORMS_ACCESS_KEY = "29a7722d-e098-4527-aec6-f856af018e30";
+const WEB3FORMS_ACCESS_KEY =
+  import.meta.env.VITE_WEB3FORMS_ACCESS_KEY?.trim() ?? "";
 const CONTACT_SUBMISSION_TIMEOUT_MS = 15_000;
 
 const CONTACT_COPY = {
@@ -59,6 +60,8 @@ const CONTACT_COPY = {
       "Não foi possível enviar a mensagem. Tente novamente ou use o e-mail acima.",
     timeout:
       "O envio demorou mais que o esperado. Verifique sua conexão e tente novamente.",
+    configurationError:
+      "O formulário está temporariamente indisponível. Use o e-mail acima.",
     privacyNotice:
       "Ao enviar, seu nome, e-mail e mensagem serão encaminhados pelo Web3Forms para que eu possa responder ao seu contato.",
     web3FormsFromName: "Portfólio de Werik Santos",
@@ -103,6 +106,8 @@ const CONTACT_COPY = {
       "Your message could not be sent. Please try again or use the email address above.",
     timeout:
       "The request took longer than expected. Check your connection and try again.",
+    configurationError:
+      "The form is temporarily unavailable. Please use the email address above.",
     privacyNotice:
       "When you submit, your name, email address, and message will be sent through Web3Forms so I can reply to your inquiry.",
     web3FormsFromName: "Werik Santos Portfolio",
@@ -139,7 +144,12 @@ function createContactSchema(language: Language) {
 }
 
 type ContactFormValues = z.infer<ReturnType<typeof createContactSchema>>;
-type SubmissionStatus = "idle" | "success" | "error" | "timeout";
+type SubmissionStatus =
+  | "idle"
+  | "success"
+  | "error"
+  | "timeout"
+  | "configurationError";
 
 const CONTACT_FIELD_NAMES = ["name", "email", "subject", "message"] as const;
 
@@ -179,16 +189,14 @@ export function ContactForm() {
     },
   });
   const previousLanguageRef = useRef(language);
-  const submissionMessage =
-    submissionStatus === "success"
-      ? copy.success
-      : submissionStatus === "error"
-        ? copy.error
-        : submissionStatus === "timeout"
-          ? copy.timeout
-          : "";
-  const submissionHasError =
-    submissionStatus === "error" || submissionStatus === "timeout";
+  const submissionMessage = {
+    idle: "",
+    success: copy.success,
+    error: copy.error,
+    timeout: copy.timeout,
+    configurationError: copy.configurationError,
+  }[submissionStatus];
+  const submissionHasError = !["idle", "success"].includes(submissionStatus);
 
   useEffect(() => {
     if (previousLanguageRef.current === language) return;
@@ -207,6 +215,11 @@ export function ContactForm() {
   async function onSubmit(values: ContactFormValues) {
     setSubmissionStatus("idle");
 
+    if (!WEB3FORMS_ACCESS_KEY) {
+      setSubmissionStatus("configurationError");
+      return;
+    }
+
     const controller = new AbortController();
     const timeoutId = window.setTimeout(
       () => controller.abort(),
@@ -223,6 +236,7 @@ export function ContactForm() {
       `${copy.web3FormsSubjectPrefix} ${values.subject}`,
     );
     formData.append("message", values.message);
+    formData.append("page", window.location.href);
 
     if (values.botcheck) {
       formData.append("botcheck", "on");

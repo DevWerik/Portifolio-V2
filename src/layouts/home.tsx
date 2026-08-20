@@ -8,6 +8,7 @@ import { ContactForm } from "@/components/ui/forms";
 import { Projects } from "@/components/ui/projects";
 import { useLanguage } from "@/i18n/language-context";
 import { gsap } from "@/lib/gsap";
+import { publicAsset } from "@/lib/public-asset";
 
 const PROFILE_LINKS = {
   github: "https://github.com/DevWerik",
@@ -277,7 +278,7 @@ export function Home() {
               className="mx-auto w-full max-w-sm overflow-hidden rounded-[2rem] border border-white/12 bg-[#202020] lg:mx-0"
             >
               <img
-                src="/WS.png"
+                src={publicAsset("WS.png")}
                 alt={content.visualAlt}
                 width={2000}
                 height={2000}

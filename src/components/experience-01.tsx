@@ -1,6 +1,7 @@
 import { CodeXmlIcon } from "lucide-react";
 
 import { useLanguage, type Language } from "@/i18n/language-context";
+import { publicAsset } from "@/lib/public-asset";
 import type { ExperienceItemType } from "./work-experience";
 import { WorkExperience } from "./work-experience";
 
@@ -91,7 +92,7 @@ function createExperiences(copy: ExperienceCopy): ExperienceItemType[] {
     {
       id: "sim-instituto-social-frontend-2025",
       companyName: "SIM Instituto Social",
-      companyLogo: "/Logo.jpeg",
+      companyLogo: publicAsset("Logo.jpeg"),
       companyWebsite: "https://simsertaosocial.org/",
       positions: [
         {
