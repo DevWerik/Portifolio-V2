@@ -396,7 +396,7 @@ export function ContactForm() {
             setSubmissionStatus("idle");
           }}
           aria-busy={isSubmitting}
-          className="mt-12 rounded-3xl border border-white/15 bg-white/[0.05] p-5 text-left backdrop-blur-sm sm:p-8 lg:p-10"
+          className="mt-12 rounded-3xl border border-white/15 bg-white/5 p-5 text-left backdrop-blur-sm sm:p-8 lg:p-10"
         >
           <input
             type="checkbox"

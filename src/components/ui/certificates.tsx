@@ -229,7 +229,7 @@ export function Certificates({ certificates }: CertificatesProps) {
             <li key={certificate.id}>
               <article
                 data-gsap-certificate-card
-                className="group border-b border-white/10 py-8 transition-colors sm:px-6 sm:py-10 sm:hover:bg-white/[0.025]"
+                className="group border-b border-white/10 py-8 transition-colors sm:px-6 sm:py-10 sm:hover:bg-white/2.5"
               >
                 <div className="flex items-start justify-between gap-6">
                   <span

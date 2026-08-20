@@ -83,33 +83,59 @@ export function Navbar() {
   const mobileLanguageButtonRef = useRef<HTMLButtonElement>(null);
   const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
 
+  // Recalculate when translated copy changes the height of the sections.
   useEffect(() => {
     const sections = observedSectionHrefs
-      .map((href) => document.querySelector(href))
-      .filter((section): section is Element => section !== null);
+      .map((href) => document.querySelector<HTMLElement>(href))
+      .filter((section): section is HTMLElement => section !== null);
 
     if (!sections.length) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visibleSection = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+    let scrollFrame = 0;
 
-        if (visibleSection) {
-          setActiveSection(`#${visibleSection.target.id}`);
+    const updateActiveSection = () => {
+      scrollFrame = 0;
+      const readingLine = window.innerHeight * 0.32;
+      let currentSection = sections[0];
+
+      for (const section of sections) {
+        if (section.getBoundingClientRect().top <= readingLine) {
+          currentSection = section;
+          continue;
         }
-      },
-      {
-        rootMargin: "-25% 0px -55% 0px",
-        threshold: [0.1, 0.25, 0.5, 0.75],
-      },
-    );
 
-    sections.forEach((section) => observer.observe(section));
+        break;
+      }
 
-    return () => observer.disconnect();
-  }, []);
+      const reachedPageEnd =
+        window.scrollY + window.innerHeight >=
+        document.documentElement.scrollHeight - 2;
+
+      if (reachedPageEnd) {
+        currentSection = sections.at(-1) ?? currentSection;
+      }
+
+      setActiveSection(`#${currentSection.id}`);
+    };
+
+    const scheduleActiveSectionUpdate = () => {
+      if (scrollFrame) return;
+
+      scrollFrame = window.requestAnimationFrame(updateActiveSection);
+    };
+
+    updateActiveSection();
+    window.addEventListener("scroll", scheduleActiveSectionUpdate, {
+      passive: true,
+    });
+    window.addEventListener("resize", scheduleActiveSectionUpdate);
+
+    return () => {
+      window.cancelAnimationFrame(scrollFrame);
+      window.removeEventListener("scroll", scheduleActiveSectionUpdate);
+      window.removeEventListener("resize", scheduleActiveSectionUpdate);
+    };
+  }, [language]);
 
   useEffect(() => {
     let scrollFrame = 0;
