@@ -10,6 +10,7 @@ import { useLayoutEffect, useMemo, useRef } from "react";
 
 import { gsap } from "@/lib/gsap";
 import { useLanguage, type Language } from "@/i18n/language-context";
+import { publicAsset } from "@/lib/public-asset";
 
 export type Certificate = {
   id: string;
@@ -75,6 +76,9 @@ const CERTIFICATES: LocalizedCertificate[] = [
     },
     platform: "DevClub",
     year: 2025,
+    certificateUrl: publicAsset(
+      "Certificado - Front End - José Werik dos Anjos de Jesus Santos.pdf",
+    ),
   },
   {
     id: "rocketseat-fullstack-81f16",
