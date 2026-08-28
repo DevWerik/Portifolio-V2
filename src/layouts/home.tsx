@@ -79,9 +79,11 @@ const skillGroups = [
       "TypeScript",
       "JavaScript",
       "Tailwind CSS",
+      "Styled-Components",
       "React Router",
       "React Hook Form",
-      "Zod",
+      "Zod"
+      
     ],
   },
   {
@@ -90,9 +92,13 @@ const skillGroups = [
       "Node.js",
       "NestJS",
       "Fastify",
+      "Express",
+      "Prisma",
       "PostgreSQL",
       "Prisma",
       "REST APIs",
+      "Docker"
+      
     ],
   },
   {
