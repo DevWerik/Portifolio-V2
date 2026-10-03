@@ -12,6 +12,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc -b --pretty false",
+    "resume": "node scripts/generate-resume.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

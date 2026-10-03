@@ -1,4 +1,4 @@
-import { ArrowRight, Code2, Mail, MapPin } from "lucide-react";
+import { ArrowRight, Code2, Download, Mail, MapPin } from "lucide-react";
 import { useLayoutEffect, useRef } from "react";
 import { FaGithub, FaLinkedinIn } from "react-icons/fa";
 
@@ -19,11 +19,12 @@ const homeContent = {
   pt: {
     eyebrow: "Desenvolvedor Full Stack",
     title:
-      "Construo produtos web claros, acessíveis e preparados para evoluir.",
+      "Interfaces em React. APIs em Node.js. Produtos de ponta a ponta.",
     introduction:
-      "Sou Werik Santos, desenvolvedor com foco em React e Node.js. Transformo necessidades de produto em interfaces responsivas e APIs organizadas e testáveis.",
+      "Sou Werik Santos, desenvolvedor Full Stack. Atuo na plataforma do SIM Instituto Social e desenvolvo o ExtraOK, um produto para gestão de serviços e aprovação de extras.",
     details:
-      "Valorizo código sustentável, boa experiência de uso e decisões técnicas que façam sentido para cada projeto.",
+      "Meu foco profissional é desenvolvimento Full Stack com React, TypeScript e Node.js, conectando interfaces, integrações e dados persistidos.",
+    resumeCta: "Baixar currículo (PDF)",
     location: "Salvador, Bahia — Brasil",
     visualAlt: "Monograma WS, identidade visual de Werik Santos",
     visualLabel: "Werik Santos",
@@ -45,11 +46,12 @@ const homeContent = {
   },
   en: {
     eyebrow: "Full-Stack Developer",
-    title: "I build clear, accessible web products designed to evolve.",
+    title: "React interfaces. Node.js APIs. End-to-end products.",
     introduction:
-      "I’m Werik Santos, a developer focused on React and Node.js. I turn product needs into responsive interfaces and well-structured, testable APIs.",
+      "I’m Werik Santos, a Full-Stack Developer. I work on the SIM Instituto Social platform and build ExtraOK, a product for service management and extra-service approvals.",
     details:
-      "I value maintainable code, thoughtful user experiences, and technical decisions that fit each project.",
+      "My professional focus is Full-Stack development with React, TypeScript, and Node.js, connecting interfaces, integrations, and persisted data.",
+    resumeCta: "Download résumé (PDF)",
     location: "Salvador, Bahia — Brazil",
     visualAlt: "WS monogram, Werik Santos’ visual identity",
     visualLabel: "Werik Santos",
@@ -82,8 +84,7 @@ const skillGroups = [
       "Styled-Components",
       "React Router",
       "React Hook Form",
-      "Zod"
-      
+      "Zod",
     ],
   },
   {
@@ -95,10 +96,8 @@ const skillGroups = [
       "Express",
       "Prisma",
       "PostgreSQL",
-      "Prisma",
       "REST APIs",
-      "Docker"
-      
+      "Docker",
     ],
   },
   {
@@ -238,6 +237,14 @@ export function Home() {
                 >
                   {content.contactCta}
                   <Mail className="size-4" aria-hidden="true" />
+                </a>
+                <a
+                  href={publicAsset(`cv/werik-santos-${language}.pdf`)}
+                  download={`Werik-Santos-${language}.pdf`}
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-4 text-sm font-medium text-zinc-200 underline decoration-white/25 underline-offset-4 transition hover:text-white hover:decoration-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                >
+                  {content.resumeCta}
+                  <Download className="size-4" aria-hidden="true" />
                 </a>
               </div>
 

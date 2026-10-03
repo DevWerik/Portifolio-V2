@@ -1,0 +1,56 @@
+{
+  "name": "Werik Santos",
+  "email": "werikanjos02@gmail.com",
+  "github": "https://github.com/DevWerik",
+  "linkedin": "https://www.linkedin.com/in/werik-santos/",
+  "pt": {
+    "role": "Desenvolvedor Full Stack | React, TypeScript e Node.js",
+    "location": "Salvador, Bahia, Brasil",
+    "summaryHeading": "PERFIL PROFISSIONAL",
+    "summary": "Desenvolvedor com atuação na plataforma do SIM Instituto Social e no desenvolvimento do ExtraOK. Experiência com interfaces React, integração de APIs, serviços Node.js, validação de dados e persistência em PostgreSQL. Foco profissional em desenvolvimento Full Stack.",
+    "skillsHeading": "COMPETÊNCIAS",
+    "skills": "React, TypeScript, JavaScript, Tailwind CSS, Node.js, Fastify, Prisma, Knex, PostgreSQL, Zod, Vitest, Git e Docker.",
+    "experienceHeading": "EXPERIÊNCIA PROFISSIONAL",
+    "experienceTitle": "SIM Instituto Social | Desenvolvedor Front-end",
+    "experiencePeriod": "Março de 2025 - atual | Tempo parcial",
+    "experience": [
+      "Desenvolvimento e manutenção de funcionalidades da plataforma web, com interfaces React e TypeScript e integrações com APIs.",
+      "Implementação de chatbot com histórico de conversa e estados de envio e erro. Camada Node.js para acessar a API da OpenAI com credenciais no servidor.",
+      "Refatoração de componentes, validação de formulários e feedback para os fluxos de interação."
+    ],
+    "projectsHeading": "PROJETOS SELECIONADOS",
+    "projects": [
+      { "title": "ExtraOK | Produto próprio em evolução", "url": "https://github.com/DevWerik/extraok", "text": "Monorepo React e Fastify para clientes, atendimentos e aprovação de serviços extras. Persistência com Prisma e PostgreSQL, sessões e links de aprovação com expiração." },
+      { "title": "API de transações financeiras | Estudo prático", "url": "https://github.com/DevWerik/Api-Node", "text": "Criação, consulta e resumo de transações por sessão, com Fastify, Knex e Zod. Repositório com cenários de integração em Vitest e Supertest." },
+      { "title": "Pizza Shop | Estudo prático de interface", "url": "https://github.com/DevWerik/pizzashop-web", "text": "Telas de dashboard e pedidos com React e TypeScript, gráficos Recharts, rotas e componentes de filtros e detalhes." }
+    ],
+    "educationHeading": "CURSOS E CERTIFICAÇÕES",
+    "education": ["Rocketseat | Back-end com Node.js - 2026", "Rocketseat | Fullstack e Desenvolvimento Full Stack - 2025", "DevClub | Desenvolvimento Front End - 2025"],
+    "linksHeading": "CONTATO E CÓDIGO"
+  },
+  "en": {
+    "role": "Full-Stack Developer | React, TypeScript and Node.js",
+    "location": "Salvador, Bahia, Brazil",
+    "summaryHeading": "PROFESSIONAL PROFILE",
+    "summary": "Developer working on the SIM Instituto Social platform and building ExtraOK. Experience with React interfaces, API integration, Node.js services, data validation, and PostgreSQL persistence. Professional focus on Full-Stack development.",
+    "skillsHeading": "SKILLS",
+    "skills": "React, TypeScript, JavaScript, Tailwind CSS, Node.js, Fastify, Prisma, Knex, PostgreSQL, Zod, Vitest, Git, and Docker.",
+    "experienceHeading": "PROFESSIONAL EXPERIENCE",
+    "experienceTitle": "SIM Instituto Social | Front-End Developer",
+    "experiencePeriod": "March 2025 - present | Part-time",
+    "experience": [
+      "Develop and maintain web platform features with React and TypeScript interfaces and API integrations.",
+      "Implemented a chatbot with conversation history and submission/error states. Built a Node.js layer to access the OpenAI API with server-side credentials.",
+      "Refactored components and implemented form validation and feedback for interaction flows."
+    ],
+    "projectsHeading": "SELECTED PROJECTS",
+    "projects": [
+      { "title": "ExtraOK | Personal product in development", "url": "https://github.com/DevWerik/extraok", "text": "React/Fastify monorepo for clients, jobs, and extra-service approvals. Prisma/PostgreSQL persistence, sessions, and expiring approval links." },
+      { "title": "Financial Transactions API | Practice project", "url": "https://github.com/DevWerik/Api-Node", "text": "Session-scoped transaction creation, lookup, and balance summary with Fastify, Knex, and Zod. Repository includes Vitest/Supertest integration scenarios." },
+      { "title": "Pizza Shop | Interface practice project", "url": "https://github.com/DevWerik/pizzashop-web", "text": "Dashboard and order screens with React and TypeScript, Recharts visualizations, routing, and filter/detail components." }
+    ],
+    "educationHeading": "COURSES AND CERTIFICATES",
+    "education": ["Rocketseat | Back-End with Node.js - 2026", "Rocketseat | Fullstack and Full-Stack Development - 2025", "DevClub | Front-End Development - 2025"],
+    "linksHeading": "CONTACT AND CODE"
+  }
+}
