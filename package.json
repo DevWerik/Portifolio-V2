@@ -12,6 +12,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc -b --pretty false",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
     "resume": "node scripts/generate-resume.mjs",
     "preview": "vite preview"
   },
