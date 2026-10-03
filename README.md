@@ -32,9 +32,12 @@ O desenvolvimento prioriza código sustentável, navegação clara e uma experi�
 - Layout **responsivo**, navegação por teclado, skip link, gerenciamento de foco e marcação semântica.
 - Animações com **GSAP e ScrollTrigger**, respeitando a preferência por movimento reduzido.
 - Projetos organizados como **cases**, apresentando desafio, solução, resultado e tecnologias utilizadas.
+- Quatro cases com participação e entregas detalhadas: **ExtraOK**, **chatbot do SIM**, **Pizza Shop** e **API de transações financeiras**.
+- Currículo em PDF de uma página em **português e inglês**, com download no início da página.
 - Formulário de contato com **React Hook Form**, **Zod**, Web3Forms, honeypot antispam e feedback de envio.
 - SEO com canonical, Open Graph, Twitter Cards, JSON-LD, `robots.txt` e `sitemap.xml` gerados no build.
 - Build otimizado com separação dos principais grupos de dependências e headers de segurança no deploy.
+- Testes de navegação, idioma e formulário em Chromium desktop e mobile, executados também no GitHub Actions.
 
 ## Tecnologias
 
@@ -61,7 +64,7 @@ O desenvolvimento prioriza código sustentável, navegação clara e uma experi�
 
 ### Pré-requisitos
 
-- Node.js `22.12` ou superior
+- Node.js `22.13` na linha 22, ou `24` ou superior (CI usa Node.js 24)
 - pnpm `10.6.5` ou compatível
 
 ### Instalação
@@ -103,22 +106,47 @@ A aplicação ficará disponível em `http://localhost:5173`.
 | `pnpm preview` | Executa uma prévia local do build. |
 | `pnpm lint` | Analisa os arquivos TypeScript e TSX com ESLint. |
 | `pnpm typecheck` | Executa a verificação de tipos sem gerar arquivos. |
+| `pnpm test` | Executa os testes de navegador com Playwright. |
+| `pnpm test:ui` | Abre a interface interativa dos testes. |
+| `pnpm resume` | Gera os currículos PT/EN a partir de `src/data/resume.json`. |
+
+Na primeira execução dos testes, instale o Chromium:
+
+```bash
+pnpm exec playwright install chromium
+```
+
+Os testes iniciam seu próprio servidor em `127.0.0.1:4173`, usam uma chave fictícia e interceptam as chamadas ao Web3Forms. Eles não enviam e-mails reais. O relatório fica em `playwright-report/`; capturas e traces de falhas ficam em `test-results/`.
 
 Antes de publicar uma alteração, execute:
 
 ```bash
 pnpm lint
 pnpm typecheck
+pnpm resume
 pnpm build
+pnpm test
 ```
+
+O workflow [ci.yml](.github/workflows/ci.yml) executa essas verificações em pushes para `main` e pull requests. O ESLint 10 usa a configuração em `eslint.config.js`.
+
+## Atualização de conteúdo
+
+Edite `src/data/projects.ts` para manter os estudos de caso e seus links. As [fontes e os limites da revisão](docs/project-evidence.md) registram o que foi confirmado em cada projeto. Não há links de demonstração para aplicações sem uma URL pública confirmada.
+
+O currículo utiliza somente as experiências, cursos e projetos apresentados no portfólio. Para atualizá-lo, edite `src/data/resume.json`, execute `pnpm resume` e inclua os dois arquivos de `public/cv/` na alteração. O gerador verifica se cada idioma continua em uma página. O foco atual é desenvolvimento Full Stack; ajuste o texto ao seu objetivo profissional.
 
 ## Estrutura do projeto
 
 ```text
 Portifolio-V2/
 ├── public/                 # Imagens, ícones, certificado e arte social
+│   └── cv/                 # Currículos PT/EN em PDF
+├── scripts/                # Geração reproduzível dos currículos
+├── tests/                  # Testes de navegador
 ├── src/
 │   ├── components/         # Seções e componentes reutilizáveis
+│   ├── data/               # Cases e conteúdo dos currículos
 │   ├── i18n/               # Idiomas, persistência e metadados localizados
 │   ├── layouts/            # Navbar, página principal e rodapé
 │   ├── lib/                # Utilitários, assets públicos e configuração do GSAP
