@@ -61,7 +61,7 @@ const EXPERIENCE_COPY = {
       employmentType: "Tempo parcial",
       description: [
         "Desenvolvo e mantenho funcionalidades da plataforma web do SIM Instituto Social, atuando na interface, nas integrações com APIs e na experiência do usuário.",
-        "Entreguei um chatbot full-stack com React, TypeScript, Node.js e a API da OpenAI, com gerenciamento de conversas e respostas em tempo real.",
+        "Implementei um chatbot com React, TypeScript, Node.js e a API da OpenAI, reunindo histórico da conversa, controle de envio e apresentação das respostas na interface.",
         "Estruturei a camada de servidor responsável por centralizar requisições, proteger credenciais e tratar respostas e falhas da integração.",
         "Implementei estados de carregamento, sucesso e erro, além de validação e feedback para tornar os fluxos mais claros e confiáveis.",
         "Refatorei componentes e fluxos em React e TypeScript, aprimorando tipagem, organização e manutenibilidade do código.",
@@ -78,7 +78,7 @@ const EXPERIENCE_COPY = {
       employmentType: "Part-time",
       description: [
         "Develop and maintain features for the SIM Instituto Social web platform, working across the interface, API integrations, and user experience.",
-        "Delivered a full-stack chatbot with React, TypeScript, Node.js, and the OpenAI API, including conversation management and real-time responses.",
+        "Implemented a chatbot with React, TypeScript, Node.js, and the OpenAI API, bringing together conversation history, submission state, and responses in the interface.",
         "Structured the server layer that centralizes requests, protects credentials, and handles integration responses and failures.",
         "Implemented loading, success, and error states, along with validation and user feedback, to make flows clearer and more reliable.",
         "Refactored React and TypeScript components and flows to improve type safety, code organization, and maintainability.",
