@@ -29,8 +29,8 @@ export const PROJECTS: Project[] = [
     title: { pt: "ExtraOK", en: "ExtraOK" },
     category: { pt: "Produto próprio · Full Stack", en: "Personal product · Full stack" },
     summary: {
-      pt: "Gestão de clientes, atendimentos e aprovação de serviços extras para prestadores de serviço.",
-      en: "Client, job, and extra-service approval management for service providers.",
+      pt: "Aplicação para prestadores organizarem clientes e atendimentos, oferecerem serviços extras e receberem a aprovação do cliente pelo celular.",
+      en: "An application for service providers to organize clients and jobs, offer extra services, and collect client approvals on mobile.",
     },
     challenge: {
       pt: "Conectar o trabalho do prestador à aprovação do cliente, mantendo os dados e o histórico de cada atendimento organizados.",
@@ -41,23 +41,30 @@ export const PROJECTS: Project[] = [
       en: "I built a monorepo with a React interface, a Fastify API, and Prisma/PostgreSQL persistence, including sessions and expiring approval links.",
     },
     outcome: {
-      pt: "O MVP conecta login, cadastro de clientes, atendimentos e aprovação de extras a uma API com dados persistidos. O produto segue em evolução.",
-      en: "The MVP connects sign-in, clients, jobs, and extra-service approvals to an API with persisted data. The product is still evolving.",
+      pt: "O cliente aprova ou recusa cada extra por um link, sem criar conta. O prestador acompanha as respostas no atendimento, com os dados persistidos no PostgreSQL.",
+      en: "Clients approve or decline each extra through a link, without creating an account. Providers track responses within the job, with data persisted in PostgreSQL.",
     },
-    role: { pt: "Desenvolvimento da interface, API e modelagem de dados.", en: "Interface, API, and data-model development." },
+    role: { pt: "Desenvolvimento da interface, API, modelagem de dados e configuração de deploy.", en: "Interface, API, data-model development, and deployment configuration." },
     deliveries: {
-      pt: ["Fluxo de clientes, atendimentos e serviços extras integrado à API.", "Sessões persistidas e aprovação por links com token e expiração.", "Execução documentada com Docker Compose, migrações e verificações de saúde da API."],
-      en: ["Client, job, and extra-service flows integrated with the API.", "Persisted sessions and approval links with expiring tokens.", "Documented Docker Compose setup, migrations, and API health checks."],
+      pt: ["Fluxo de clientes, atendimentos e serviços extras integrado à API.", "Sessões persistidas e aprovação por links com token e expiração.", "Relatórios e exportações em PDF e CSV conforme os recursos do plano.", "Deploy com Cloudflare Workers e Render, com alternativa local em Docker Compose."],
+      en: ["Client, job, and extra-service flows integrated with the API.", "Persisted sessions and approval links with expiring tokens.", "Reports and PDF/CSV exports based on plan features.", "Deployment with Cloudflare Workers and Render, plus a local Docker Compose setup."],
     },
-    technologies: ["React", "TypeScript", "Node.js", "Fastify", "Prisma", "PostgreSQL", "Docker"],
+    technologies: ["React", "TypeScript", "Tailwind CSS", "TanStack Query", "Node.js", "Fastify", "Prisma", "PostgreSQL", "Docker"],
     sourceUrl: "https://github.com/DevWerik/extraok",
-    references: [{ label: { pt: "Documentação do projeto", en: "Project documentation" }, url: "https://github.com/DevWerik/extraok#readme" }],
+    references: [
+      { label: { pt: "Acessar projeto", en: "Visit project" }, url: "https://app.extraok.workers.dev" },
+      { label: { pt: "Documentação do projeto", en: "Project documentation" }, url: "https://github.com/DevWerik/extraok#readme" },
+    ],
     status: "inProgress",
-    visual: { label: "extraok / app", layers: [
-      { technology: "React", role: { pt: "Interface do prestador", en: "Provider interface" } },
-      { technology: "Fastify + Prisma", role: { pt: "Regras e persistência", en: "Rules and persistence" } },
-      { technology: "PostgreSQL", role: { pt: "Clientes e atendimentos", en: "Clients and jobs" } },
-    ] },
+    visual: {
+      image: "projects/extraok.png",
+      alt: {
+        pt: "Página inicial do ExtraOK com apresentação do produto e exemplo de atendimento com um serviço extra aguardando aprovação",
+        en: "ExtraOK home page introducing the product and showing a sample job with an extra service awaiting approval",
+      },
+      width: 1440,
+      height: 826,
+    },
   },
   {
     id: "sim-chatbot",

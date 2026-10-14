@@ -8,6 +8,14 @@ Revisão de conteúdo em 2 de outubro de 2026. O conteúdo do site fica em `src/
 - A documentação apresenta o núcleo como um MVP persistente e autenticado, com requisitos de hospedagem ainda dependentes do ambiente.
 - Classificado como produto próprio em evolução. Não foram afirmados números de clientes, receita, disponibilidade em produção ou cobertura de testes.
 
+Atualização do card em 14 de outubro de 2026:
+
+- Captura da página inicial fornecida pelo proprietário em `public/projects/extraok.png`, preservada em 1440 × 826 pixels e exibida sem recorte, com texto alternativo em português e inglês.
+- Incluído o link [Acessar projeto](https://app.extraok.workers.dev), preservando os links de código e documentação. O endereço consta no relatório técnico da cópia local do ExtraOK (`docs/relatorio-post-extraok.md`).
+- Conteúdo e tecnologias conferidos no README, nos manifests de `apps/web` e `apps/api` e no relatório técnico local: aprovação por link sem cadastro do cliente, relatórios/exportações conforme o plano, TanStack Query, Tailwind CSS e configuração de publicação com Cloudflare Workers e Render.
+- O card continua classificado como produto em evolução. A inclusão do link não representa uma validação dos fluxos autenticados ou dos pagamentos em produção.
+- Validação desta atualização: lint e build aprovados; os dois testes existentes de cases, links, PDFs e overflow passaram em desktop e mobile. A conferência do build também confirmou o carregamento da captura, os links e textos alternativos em PT/EN e a ausência de overflow horizontal em 1440 e 393 pixels, com revisão visual das capturas.
+
 ## Chatbot do SIM Instituto Social
 
 - Experiência profissional, vínculo e data preservados de `src/components/experience-01.tsx`.
