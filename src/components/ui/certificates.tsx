@@ -3,31 +3,20 @@ import {
   BookOpen,
   CalendarDays,
   CircleDashed,
+  Clock3,
   ExternalLink,
   GraduationCap,
 } from "lucide-react";
 import { useLayoutEffect, useMemo, useRef } from "react";
 
+import { CERTIFICATES, type Certificate } from "@/data/certificates";
 import { gsap } from "@/lib/gsap";
 import { useLanguage, type Language } from "@/i18n/language-context";
-import { publicAsset } from "@/lib/public-asset";
 
-export type Certificate = {
-  id: string;
-  name: string;
-  studied: string;
-  platform: string;
-  year: number;
-  certificateUrl?: string;
-};
+export type { Certificate } from "@/data/certificates";
 
 type CertificatesProps = {
   certificates?: Certificate[];
-};
-
-type LocalizedCertificate = Omit<Certificate, "name" | "studied"> & {
-  name: Record<Language, string>;
-  studied: Record<Language, string>;
 };
 
 const CERTIFICATES_COPY = {
@@ -38,13 +27,17 @@ const CERTIFICATES_COPY = {
       "Cursos e formações que complementam minha experiência e mantêm meu conhecimento em constante evolução.",
     certificate: "certificado",
     certificates: "certificados",
+    order: "Mais recentes primeiro",
     studied: "O que foi estudado",
-    platform: "Plataforma",
     completion: "Conclusão",
+    duration: "Carga horária",
     viewCertificate: "Ver certificado",
+    validateCertificate: "Validar credencial",
     linkUpdating: "Link em atualização",
     viewCertificateAria: (name: string) =>
       `Ver certificado ${name} (abre em nova aba)`,
+    validateCertificateAria: (name: string) =>
+      `Validar credencial ${name} (abre em nova aba)`,
   },
   en: {
     eyebrow: "Continuous learning",
@@ -53,94 +46,58 @@ const CERTIFICATES_COPY = {
       "Courses and training programs that complement my experience and keep my knowledge continuously evolving.",
     certificate: "certificate",
     certificates: "certificates",
+    order: "Most recent first",
     studied: "What I studied",
-    platform: "Platform",
     completion: "Completion",
+    duration: "Duration",
     viewCertificate: "View certificate",
+    validateCertificate: "Verify credential",
     linkUpdating: "Link being updated",
     viewCertificateAria: (name: string) =>
       `View certificate: ${name} (opens in a new tab)`,
+    validateCertificateAria: (name: string) =>
+      `Verify credential: ${name} (opens in a new tab)`,
   },
 } satisfies Record<Language, object>;
-
-const CERTIFICATES: LocalizedCertificate[] = [
-  {
-    id: "devclub-front-end",
-    name: {
-      pt: "Desenvolvimento Front End",
-      en: "Front-End Development",
-    },
-    studied: {
-      pt: "Componentização, hooks, gerenciamento de estado, responsividade e acessibilidade.",
-      en: "Component architecture, hooks, state management, responsive design, and accessibility.",
-    },
-    platform: "DevClub",
-    year: 2025,
-    certificateUrl: publicAsset(
-      "Certificado - Front End - José Werik dos Anjos de Jesus Santos.pdf",
-    ),
-  },
-  {
-    id: "rocketseat-fullstack-81f16",
-    name: {
-      pt: "Fullstack",
-      en: "Full-Stack",
-    },
-    studied: {
-      pt: "Formação em desenvolvimento de aplicações web com tecnologias de front-end e back-end.",
-      en: "Web application development training covering front-end and back-end technologies.",
-    },
-    platform: "Rocketseat",
-    year: 2025,
-    certificateUrl:
-      "https://app.rocketseat.com.br/certificates/81f16ba3-0210-4487-9691-3e3ebc2b08ee",
-  },
-  {
-    id: "rocketseat-full-stack",
-    name: {
-      pt: "Desenvolvimento Full Stack",
-      en: "Full-Stack Development",
-    },
-    studied: {
-      pt: "Integração entre front-end e back-end, APIs REST, autenticação, banco de dados e entrega de aplicações completas.",
-      en: "Front-end and back-end integration, REST APIs, authentication, databases, and end-to-end application delivery.",
-    },
-    platform: "Rocketseat",
-    year: 2025,
-    certificateUrl:
-      "https://app.rocketseat.com.br/certificates/2a60cae3-4976-4318-88a8-38e185497b2e",
-  },
-  {
-    id: "rocketseat-node-back-end",
-    name: {
-      pt: "Back-end com Node.js",
-      en: "Back-End with Node.js",
-    },
-    studied: {
-      pt: "Arquitetura de APIs, autenticação, persistência de dados, validação e testes no ecossistema Node.js.",
-      en: "API architecture, authentication, data persistence, validation, and testing in the Node.js ecosystem.",
-    },
-    platform: "Rocketseat",
-    year: 2026,
-    certificateUrl:
-      "https://app.rocketseat.com.br/certificates/e161d21b-4d50-42b5-8907-e74a3fb0dba5",
-  },
-];
 
 export function Certificates({ certificates }: CertificatesProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const { language } = useLanguage();
   const copy = CERTIFICATES_COPY[language];
-  const defaultCertificates = useMemo(
+  const dateFormatter = useMemo(
     () =>
-      CERTIFICATES.map(({ name, studied, ...certificate }) => ({
+      new Intl.DateTimeFormat(language === "pt" ? "pt-BR" : "en-US", {
+        dateStyle: "medium",
+        timeZone: "UTC",
+      }),
+    [language],
+  );
+  const displayedCertificates = useMemo(() => {
+    const localizedCertificates = certificates ?? CERTIFICATES.map(
+      ({ name, studied, ...certificate }) => ({
         ...certificate,
         name: name[language],
         studied: studied[language],
-      })),
-    [language],
-  );
-  const displayedCertificates = certificates ?? defaultCertificates;
+      }),
+    );
+
+    return [...localizedCertificates].sort(
+      (first, second) =>
+        second.year - first.year ||
+        (second.completedAt ?? "").localeCompare(first.completedAt ?? ""),
+    );
+  }, [certificates, language]);
+  const certificateGroups = useMemo(() => {
+    const groups = new Map<number, Certificate[]>();
+
+    displayedCertificates.forEach((certificate) => {
+      const group = groups.get(certificate.year) ?? [];
+      group.push(certificate);
+      groups.set(certificate.year, group);
+    });
+
+    return Array.from(groups, ([year, items]) => ({ year, items }));
+  }, [displayedCertificates]);
 
   useLayoutEffect(() => {
     const media = gsap.matchMedia();
@@ -187,7 +144,7 @@ export function Certificates({ certificates }: CertificatesProps) {
     });
 
     return () => media.revert();
-  }, []);
+  }, [certificates]);
 
   return (
     <section
@@ -197,115 +154,152 @@ export function Certificates({ certificates }: CertificatesProps) {
       tabIndex={-1}
       className="scroll-mt-24 py-20 outline-none lg:py-32"
     >
-      <div className="grid gap-12 lg:grid-cols-[minmax(240px,0.7fr)_1.3fr] lg:gap-20">
-        <header className="lg:sticky lg:top-28 lg:self-start">
-          <div data-gsap-certificate-heading>
-            <div className="flex items-center gap-4 text-xs uppercase tracking-[0.28em] text-zinc-400">
-              <span aria-hidden="true" className="h-px w-8 bg-zinc-600" />
-              {copy.eyebrow}
-            </div>
+      <header data-gsap-certificate-heading>
+        <div className="flex items-center gap-4 text-xs uppercase tracking-[0.28em] text-zinc-400">
+          <span aria-hidden="true" className="h-px w-8 bg-zinc-600" />
+          {copy.eyebrow}
+        </div>
 
-            <h2
-              id="certificates-title"
-              className="mt-5 text-4xl font-medium tracking-tight text-white sm:text-5xl"
-            >
-              {copy.title}
-            </h2>
+        <h2
+          id="certificates-title"
+          className="mt-5 text-4xl font-medium tracking-tight text-white sm:text-5xl"
+        >
+          {copy.title}
+        </h2>
 
-            <p className="mt-5 max-w-md text-base leading-7 text-zinc-400">
-              {copy.description}
-            </p>
+        <p className="mt-5 max-w-2xl text-base leading-7 text-zinc-400">
+          {copy.description}
+        </p>
 
-            <div className="mt-8 flex items-center gap-3 text-sm text-zinc-400">
-              <GraduationCap className="size-5" aria-hidden="true" />
-              <span>
-                {displayedCertificates.length}{" "}
-                {displayedCertificates.length === 1
-                  ? copy.certificate
-                  : copy.certificates}
-              </span>
-            </div>
-          </div>
-        </header>
+        <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-zinc-400">
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-zinc-300">
+            <GraduationCap className="size-4" aria-hidden="true" />
+            {displayedCertificates.length}{" "}
+            {displayedCertificates.length === 1
+              ? copy.certificate
+              : copy.certificates}
+          </span>
+          <span>{copy.order}</span>
+        </div>
+      </header>
 
-        <ol className="border-t border-white/10">
-          {displayedCertificates.map((certificate, index) => (
-            <li key={certificate.id}>
-              <article
-                data-gsap-certificate-card
-                className="group border-b border-white/10 py-8 transition-colors sm:px-6 sm:py-10 sm:hover:bg-white/2.5"
+      <div className="mt-12 space-y-12">
+        {certificateGroups.map(({ year, items }) => (
+          <section key={year} aria-labelledby={`certificates-year-${year}`}>
+            <div className="mb-6 flex items-center gap-4">
+              <h3
+                id={`certificates-year-${year}`}
+                className="font-mono text-xl font-medium text-white"
               >
-                <div className="flex items-start justify-between gap-6">
-                  <span
-                    aria-hidden="true"
-                    className="font-mono text-xs text-zinc-400"
+                {year}
+              </h3>
+              <span className="text-sm text-zinc-400">
+                {items.length}{" "}
+                {items.length === 1 ? copy.certificate : copy.certificates}
+              </span>
+              <span aria-hidden="true" className="h-px flex-1 bg-white/10" />
+            </div>
+
+            <ol className="grid gap-5 md:grid-cols-2">
+              {items.map((certificate) => (
+                <li key={certificate.id} className="flex min-w-0">
+                  <article
+                    aria-labelledby={`${certificate.id}-title`}
+                    data-gsap-certificate-card
+                    className="group flex w-full flex-col rounded-2xl border border-white/10 bg-white/[0.035] p-6 transition-colors hover:border-white/20 sm:p-8"
                   >
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-
-                  <span className="flex size-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-zinc-400 transition-colors group-hover:border-white/20 group-hover:text-white">
-                    <Award className="size-4.5" aria-hidden="true" />
-                  </span>
-                </div>
-
-                <h3 className="mt-7 max-w-xl text-2xl font-medium tracking-tight text-white sm:text-3xl">
-                  {certificate.name}
-                </h3>
-
-                <div className="mt-6 max-w-2xl">
-                  <div className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-zinc-400">
-                    <BookOpen className="size-3.5" aria-hidden="true" />
-                    {copy.studied}
-                  </div>
-                  <p className="mt-3 leading-7 text-zinc-400">
-                    {certificate.studied}
-                  </p>
-                </div>
-
-                <dl className="mt-8 grid grid-cols-2 gap-4 border-t border-white/10 pt-5">
-                  <div>
-                    <dt className="text-xs uppercase tracking-[0.18em] text-zinc-400">
-                      {copy.platform}
-                    </dt>
-                    <dd className="mt-2 text-sm font-medium text-zinc-200">
+                    <div className="flex items-center gap-3 text-sm text-zinc-300">
+                      <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-zinc-400 transition-colors group-hover:text-white">
+                        <Award className="size-4" aria-hidden="true" />
+                      </span>
                       {certificate.platform}
-                    </dd>
-                  </div>
+                    </div>
 
-                  <div className="border-l border-white/10 pl-4 sm:pl-6">
-                    <dt className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-zinc-400">
-                      <CalendarDays className="size-3.5" aria-hidden="true" />
-                      {copy.completion}
-                    </dt>
-                    <dd className="mt-2 font-mono text-sm text-zinc-200">
-                      <time dateTime={String(certificate.year)}>
-                        {certificate.year}
-                      </time>
-                    </dd>
-                  </div>
-                </dl>
+                    <h4
+                      id={`${certificate.id}-title`}
+                      className="mt-5 text-2xl font-medium tracking-tight text-white"
+                    >
+                      {certificate.name}
+                    </h4>
 
-                {certificate.certificateUrl ? (
-                  <a
-                    href={certificate.certificateUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={copy.viewCertificateAria(certificate.name)}
-                    className="mt-7 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-medium text-zinc-200 transition duration-300 hover:-translate-y-0.5 hover:border-white hover:bg-white hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-4 focus-visible:ring-offset-black"
-                  >
-                    {copy.viewCertificate}
-                    <ExternalLink className="size-4" aria-hidden="true" />
-                  </a>
-                ) : (
-                  <span className="mt-7 inline-flex items-center gap-2 rounded-full border border-dashed border-white/15 px-4 py-2.5 text-sm text-zinc-400">
-                    <CircleDashed className="size-4" aria-hidden="true" />
-                    {copy.linkUpdating}
-                  </span>
-                )}
-              </article>
-            </li>
-          ))}
-        </ol>
+                    <div className="mt-5">
+                      <div className="flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-zinc-400">
+                        <BookOpen className="size-3.5" aria-hidden="true" />
+                        {copy.studied}
+                      </div>
+                      <p className="mt-3 text-sm leading-7 text-zinc-400">
+                        {certificate.studied}
+                      </p>
+                    </div>
+
+                    <div className="mt-auto pt-6">
+                      <dl className="grid grid-cols-2 gap-4 border-t border-white/10 pt-5">
+                        <div>
+                          <dt className="flex items-center gap-2 text-xs uppercase tracking-[0.12em] text-zinc-400">
+                            <CalendarDays className="size-3.5 shrink-0" aria-hidden="true" />
+                            {copy.completion}
+                          </dt>
+                          <dd className="mt-2 text-sm text-zinc-200">
+                            <time dateTime={certificate.completedAt ?? String(certificate.year)}>
+                              {certificate.completedAt
+                                ? dateFormatter.format(new Date(certificate.completedAt))
+                                : certificate.year}
+                            </time>
+                          </dd>
+                        </div>
+
+                        {certificate.hours != null && (
+                          <div className="border-l border-white/10 pl-4">
+                            <dt className="flex items-center gap-2 text-xs uppercase tracking-[0.12em] text-zinc-400">
+                              <Clock3 className="size-3.5 shrink-0" aria-hidden="true" />
+                              {copy.duration}
+                            </dt>
+                            <dd className="mt-2 font-mono text-sm text-zinc-200">
+                              {certificate.hours} h
+                            </dd>
+                          </div>
+                        )}
+                      </dl>
+
+                      <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3">
+                        {certificate.certificateUrl ? (
+                          <a
+                            href={certificate.certificateUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={copy.viewCertificateAria(certificate.name)}
+                            className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-medium text-zinc-200 transition duration-300 hover:-translate-y-0.5 hover:border-white hover:bg-white hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-4 focus-visible:ring-offset-black"
+                          >
+                            {copy.viewCertificate}
+                            <ExternalLink className="size-4" aria-hidden="true" />
+                          </a>
+                        ) : (
+                          <span className="inline-flex items-center gap-2 rounded-full border border-dashed border-white/15 px-4 py-2.5 text-sm text-zinc-400">
+                            <CircleDashed className="size-4" aria-hidden="true" />
+                            {copy.linkUpdating}
+                          </span>
+                        )}
+
+                        {certificate.validationUrl && (
+                          <a
+                            href={certificate.validationUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={copy.validateCertificateAria(certificate.name)}
+                            className="inline-flex items-center gap-2 rounded py-2 text-sm text-zinc-400 underline decoration-white/20 underline-offset-4 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-4 focus-visible:ring-offset-black"
+                          >
+                            {copy.validateCertificate}
+                            <ExternalLink className="size-3.5" aria-hidden="true" />
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </article>
+                </li>
+              ))}
+            </ol>
+          </section>
+        ))}
       </div>
     </section>
   );
